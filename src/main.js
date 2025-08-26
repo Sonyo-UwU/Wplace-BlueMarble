@@ -210,6 +210,17 @@ overlayMain.handleDrag('#bm-overlay', '#bm-bar-drag'); // Creates dragging capab
 
 apiManager.spontaneousResponseListener(overlayMain); // Reads spontaneous fetch responces
 
+// Force-load /me once on startup so user info and owned colors are available
+inject(() => {
+    fetch('https://backend.wplace.live/me', { credentials: 'include' })
+        .then(r => r.ok ? r.json() : null)
+        .then(json => {
+            if (!json) { return; }
+            window.postMessage({ source: 'blue-marble', endpoint: 'me', jsonData: json }, '*');
+        })
+        .catch(() => { });
+});
+
 observeBlack(); // Observes the black palette color
 
 consoleLog(`%c${name}%c (${version}) userscript has loaded!`, 'color: cornflowerblue;', '');
@@ -274,6 +285,81 @@ function buildOverlayMain() {
       GM.setValue('bmCoords', JSON.stringify(data));
     } catch (_) {}
   };
+
+  const persistPalette = () => {
+    try {
+      const t = templateManager.templatesArray?.[0];
+      const key = t?.storageKey;
+      if (t && key && templateManager.templatesJSON?.templates?.[key]) {
+        templateManager.templatesJSON.templates[key].palette = t.colorPalette;
+        GM.setValue('bmTemplates', JSON.stringify(templateManager.templatesJSON));
+      }
+    } catch (_) {}
+  };
+
+  const enableSelectedColor = () => {
+    let background = document.getElementsByClassName('mb-4 mt-3')[0]?.getElementsByClassName('border-primary')[0]?.style.background;
+    let rgb = background?.slice(4, -1).replaceAll(' ', '');
+
+    // Transparent is selected
+    if (rgb === '') {
+      background = 'rgb(222, 250, 206)';
+      rgb = '222,250,206';
+    }
+
+    if (!rgb?.includes(',')) {
+      overlayMain.handleDisplayStatus(`No color selected`);
+      return;
+    }
+
+    const t = templateManager.templatesArray[0];
+    if (!t?.colorPalette) return;
+
+    let inPalette = false;
+
+    // Update palette
+    Object.entries(t.colorPalette).forEach(([k, v]) => {
+      if (k === rgb) {
+        v.enabled = true;
+        inPalette = true;
+      }
+      else {
+        v.enabled = false;
+      }
+    });
+
+    // Update filter list
+    [...document.getElementById('bm-colorfilter-list').children].forEach(c => {
+      if (c.children[1].style.backgroundColor === background) {
+        c.firstElementChild.checked = true;
+        c.scrollIntoView({ 'behavior': 'smooth', 'block': 'center' });
+      }
+      else {
+        c.firstElementChild.checked = false;
+      }
+    });
+
+    if (rgb === '222,250,206') {
+      if (inPalette)
+        overlayMain.handleDisplayStatus(`Enabled only transparent color`);
+      else
+        overlayMain.handleDisplayStatus(`Transparent color is not in palette`);
+    }
+    else {
+      if (inPalette)
+        overlayMain.handleDisplayStatus(`Enabled only ${rgb}`);
+      else
+        overlayMain.handleDisplayStatus(`Color ${rgb} is not in palette`);
+    }
+
+    persistPalette();
+  };
+
+  // Add keyboard shortcut
+  document.addEventListener('keydown', e => {
+    if (e.key === 'v')
+      enableSelectedColor();
+  });
   
   overlayMain.addDiv({'id': 'bm-overlay', 'style': 'top: 10px; right: 75px;'})
     .addDiv({'id': 'bm-contain-header'})
@@ -550,15 +636,16 @@ function buildOverlayMain() {
         }).buildElement()
       .buildElement()
       // Color filter UI
-      .addDiv({'id': 'bm-contain-colorfilter', 'style': 'max-height: 140px; overflow: auto; border: 1px solid rgba(255,255,255,0.1); padding: 4px; border-radius: 4px; display: none;'})
+      .addDiv({'id': 'bm-contain-colorfilter', 'style': 'border: 1px solid rgba(255,255,255,0.1); padding: 4px; border-radius: 4px; margin-top: 4px; display: none;'})
         .addDiv({'style': 'display: flex; gap: 6px; margin-bottom: 6px;'})
           .addButton({'id': 'bm-button-colors-enable-all', 'textContent': 'Enable All'}, (instance, button) => {
             button.onclick = () => {
               const t = templateManager.templatesArray[0];
               if (!t?.colorPalette) { return; }
               Object.values(t.colorPalette).forEach(v => v.enabled = true);
-              buildColorFilterList();
+              [...document.getElementById('bm-colorfilter-list').children].forEach(c => c.firstElementChild.checked = true);
               instance.handleDisplayStatus('Enabled all colors');
+              persistPalette();
             };
           }).buildElement()
           .addButton({'id': 'bm-button-colors-disable-all', 'textContent': 'Disable All'}, (instance, button) => {
@@ -566,12 +653,47 @@ function buildOverlayMain() {
               const t = templateManager.templatesArray[0];
               if (!t?.colorPalette) { return; }
               Object.values(t.colorPalette).forEach(v => v.enabled = false);
-              buildColorFilterList();
+              [...document.getElementById('bm-colorfilter-list').children].forEach(c => c.firstElementChild.checked = false);
               instance.handleDisplayStatus('Disabled all colors');
+              persistPalette();
             };
           }).buildElement()
         .buildElement()
-        .addDiv({'id': 'bm-colorfilter-list'}).buildElement()
+        .addDiv({'style': 'padding-bottom: 4px;'})
+          .addButton({'className': 'bm-help', 'title': 'Clear', 'style': 'display: inline-flex; background-color: #144eb9; border-radius: 1em; vertical-align: middle;', 'innerHTML': '<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 50 50" style="width: 80%;margin: 0 auto;"><path d="M 21 3 C 11.601563 3 4 10.601563 4 20 C 4 29.398438 11.601563 37 21 37 C 24.355469 37 27.460938 36.015625 30.09375 34.34375 L 42.375 46.625 L 46.625 42.375 L 34.5 30.28125 C 36.679688 27.421875 38 23.878906 38 20 C 38 10.601563 30.398438 3 21 3 Z M 21 7 C 28.199219 7 34 12.800781 34 20 C 34 27.199219 28.199219 33 21 33 C 13.800781 33 8 27.199219 8 20 C 8 12.800781 13.800781 7 21 7 Z"></path></svg>'}, (instance, button) => {
+            button.addEventListener('click', () => {
+              const searchBar = document.getElementById('color-search');
+              searchBar.value = '';
+              searchBar.dispatchEvent(new Event('input'));
+            });
+          }).buildElement()
+          .addInput({ 'id': 'color-search', 'type': 'text', placeholder: 'Search', 'style': 'background-color: #0003; padding: 0 .5ch; font-size: small; width: calc(82% - 2ch); margin-left: 1ch;  margin-right: 1ch;'}, (instance, input) => {
+            input.addEventListener('input', e => {
+              const listContainer = document.getElementById('bm-colorfilter-list');
+              const searchText = e.target.value.toLowerCase();
+              for (const color of listContainer.children) {
+                if (color.innerText.toLowerCase().includes(searchText))
+                  color.style.display = 'flex';
+                else
+                  color.style.display = 'none';
+              }
+            });
+
+            // Prevent Wplace shortcuts when typing in the search bar
+            input.addEventListener('keydown', e => {
+              // Space shortcut
+              e.stopPropagation();
+            }, { capture: true });
+            input.addEventListener('keypress', e => {
+              // I and E shortcuts
+              e.stopPropagation();
+            }, { capture: true });
+          }).buildElement()
+          .addButton({'className': 'bm-help', 'title': 'Enable currently selected color', 'style': 'display: inline-flex; background-color: #144eb9; border-radius: 1em; vertical-align: middle;', 'innerHTML': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" style="margin: 0 auto;width: 80%;"><path d="M120-120v-190l358-358-58-56 58-56 76 76 124-124q5-5 12.5-8t15.5-3q8 0 15 3t13 8l94 94q5 6 8 13t3 15q0 8-3 15.5t-8 12.5L705-555l76 78-57 57-56-58-358 358H120Zm80-80h78l332-334-76-76-334 332v78Zm447-410 96-96-37-37-96 96 37 37Zm0 0-37-37 37 37Z"></path></svg>'}, (instance, button) => {
+            button.addEventListener('click', enableSelectedColor);
+          }).buildElement()
+        .buildElement()
+        .addDiv({'id': 'bm-colorfilter-list', 'style': 'max-height: 120px; overflow: auto;'}).buildElement()
       .buildElement()
       .addInputFile({'id': 'bm-input-file-template', 'textContent': 'Upload Template', 'accept': 'image/png, image/jpeg, image/webp, image/bmp, image/gif'}).buildElement()
       .addDiv({'id': 'bm-contain-buttons-template'})
@@ -640,6 +762,9 @@ function buildOverlayMain() {
 
   // ------- Helper: Build the color filter list -------
   window.buildColorFilterList = function buildColorFilterList() {
+    // Clear search bar
+    document.getElementById('color-search').value = '';
+
     const listContainer = document.querySelector('#bm-colorfilter-list');
     const t = templateManager.templatesArray?.[0];
     if (!listContainer || !t?.colorPalette) {
@@ -659,10 +784,12 @@ function buildOverlayMain() {
       row.style.margin = '4px 0';
 
       let swatch = document.createElement('div');
+      swatch.title = 'Enable only this color';
       swatch.style.width = '14px';
       swatch.style.height = '14px';
       swatch.style.border = '1px solid rgba(255,255,255,0.5)';
-
+      swatch.style.cursor = 'pointer';
+      
       let label = document.createElement('span');
       label.style.fontSize = '12px';
       let labelText = `${meta.count.toLocaleString()}`;
@@ -694,15 +821,17 @@ function buildOverlayMain() {
       toggle.addEventListener('change', () => {
         meta.enabled = toggle.checked;
         overlayMain.handleDisplayStatus(`${toggle.checked ? 'Enabled' : 'Disabled'} ${rgb}`);
-        try {
-          const t = templateManager.templatesArray?.[0];
-          const key = t?.storageKey;
-          if (t && key && templateManager.templatesJSON?.templates?.[key]) {
-            templateManager.templatesJSON.templates[key].palette = t.colorPalette;
-            // persist immediately
-            GM.setValue('bmTemplates', JSON.stringify(templateManager.templatesJSON));
-          }
-        } catch (_) {}
+        persistPalette();
+      });
+
+      swatch.addEventListener('click', e => {
+        const t = templateManager.templatesArray[0];
+        if (!t?.colorPalette) { return; }
+        Object.entries(t.colorPalette).forEach(([k, v]) => v.enabled = (k === rgb));
+        [...document.getElementById('bm-colorfilter-list').children].forEach(c => c.firstElementChild.checked = false);
+        e.target.previousElementSibling.checked = true;
+        overlayMain.handleDisplayStatus(`Enabled only ${rgb}`);
+        persistPalette();
       });
 
       row.appendChild(toggle);
@@ -710,7 +839,7 @@ function buildOverlayMain() {
       row.appendChild(label);
       listContainer.appendChild(row);
     }
-  };
+    };
 
   // Listen for template creation/import completion to (re)build palette list
   window.addEventListener('message', (event) => {

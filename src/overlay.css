@@ -1,5 +1,10 @@
 /* @since 0.5.1 */
 
+/* Hide overlay when in queue */
+body:has(main) #bm-overlay {
+    display: none;
+}
+
 /* The entire overlay */
 #bm-overlay, #bm-overlay-telemetry {
   position: fixed;
@@ -228,7 +233,7 @@ input[type="file"][id*="template"] {
   font-size: small;
   background-color: rgba(0, 0, 0, 0.2);
   padding: 0 0.5ch;
-  height: 3.75em;
+  height: 6.1em;
   width: 100%;
 }
 

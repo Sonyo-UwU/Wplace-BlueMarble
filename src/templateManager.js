@@ -508,9 +508,10 @@ export default class TemplateManager {
 
       // Determine total required across all templates
       // Prefer precomputed per-template required counts; fall back to sum of processed tiles
-      const totalRequiredTemplates = this.templatesArray.reduce((sum, t) =>
-        sum + (t.requiredPixelCount || t.pixelCount || 0), 0);
-      const totalRequired = totalRequiredTemplates > 0 ? totalRequiredTemplates : aggRequiredTiles;
+      //const totalRequiredTemplates = this.templatesArray.reduce((sum, t) =>
+      //  sum + (t.requiredPixelCount || t.pixelCount || 0), 0);
+      //const totalRequired = totalRequiredTemplates > 0 ? totalRequiredTemplates : aggRequiredTiles;
+      const totalRequired = aggRequiredTiles;
 
       // Turns numbers into formatted number strings. E.g., 1234 -> 1,234 OR 1.234 based on location of user
       const paintedStr = new Intl.NumberFormat().format(aggPainted);
@@ -518,7 +519,7 @@ export default class TemplateManager {
       const wrongStr = new Intl.NumberFormat().format(totalRequired - aggPainted); // Used to be aggWrong, but that is bugged
 
       this.overlay.handleDisplayStatus(
-        `Displaying ${templateCount} template${templateCount == 1 ? '' : 's'}.\nPainted ${paintedStr} / ${requiredStr} • Wrong ${wrongStr}`
+        `Displaying ${templateCount} template${templateCount == 1 ? '' : 's'}.\nPainted ${paintedStr} / ${requiredStr} (${Math.round(aggPainted / totalRequired * 1000) / 10}%) • Wrong ${wrongStr}`
       );
     } else {
       this.overlay.handleDisplayStatus(`Displaying ${templateCount} templates.`);
@@ -546,6 +547,7 @@ export default class TemplateManager {
    * @since 0.72.13
    */
   async #parseBlueMarble(json) {
+    if (!this.templatesJSON) {this.templatesJSON = await this.createJSON(); console.log(`Creating JSON...`);}
 
     console.log(`Parsing BlueMarble...`);
 
@@ -567,7 +569,7 @@ export default class TemplateManager {
           const sortID = Number(templateKeyArray?.[0]); // Sort ID of the template
           const authorID = templateKeyArray?.[1] || '0'; // User ID of the person who exported the template
           const displayName = templateValue.name || `Template ${sortID || ''}`; // Display name of the template
-          //const coords = templateValue?.coords?.split(',').map(Number); // "1,2,3,4" -> [1, 2, 3, 4]
+          const coords = templateValue?.coords?.split(',').map(Number); // "1,2,3,4" -> [1, 2, 3, 4]
           const tilesbase64 = templateValue.tiles;
           const templateTiles = {}; // Stores the template bitmap tiles for each tile.
           let requiredPixelCount = 0; // Global required pixel count for this imported template
@@ -648,6 +650,13 @@ export default class TemplateManager {
           this.templatesArray.push(template);
           console.log(this.templatesArray);
           console.log(`^^^ This ^^^`);
+          this.templatesJSON.templates[templateKey] = {
+            "name": template.displayName, // Display name of template
+            "coords": coords.join(', '), // The coords of the template
+            "enabled": !!templateValue.enabled,
+            "tiles": templateValue.tiles, // Stores the chunked tile buffers
+            "palette": template.colorPalette // Persist palette and enabled flags
+          };
         }
       }
       // After importing templates from storage, reveal color UI and request palette list build
