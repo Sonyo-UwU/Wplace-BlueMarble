@@ -357,7 +357,7 @@ function buildOverlayMain() {
 
   // Add keyboard shortcut
   document.addEventListener('keydown', e => {
-    if (e.key === 'v')
+    if (e.key === 'v' && !e.ctrlKey)
       enableSelectedColor();
   });
   
@@ -667,7 +667,7 @@ function buildOverlayMain() {
               searchBar.dispatchEvent(new Event('input'));
             });
           }).buildElement()
-          .addInput({ 'id': 'color-search', 'type': 'text', placeholder: 'Search', 'style': 'background-color: #0003; padding: 0 .5ch; font-size: small; width: calc(82% - 2ch); margin-left: 1ch;  margin-right: 1ch;'}, (instance, input) => {
+          .addInput({ 'id': 'color-search', 'type': 'text', placeholder: 'Search', 'style': 'background-color: #0003; padding: 0 .5ch; font-size: small; width: calc(100% - 2ch - 48px); margin-left: 1ch;  margin-right: 1ch;'}, (instance, input) => {
             input.addEventListener('input', e => {
               const listContainer = document.getElementById('bm-colorfilter-list');
               const searchText = e.target.value.toLowerCase();
@@ -808,8 +808,7 @@ function buildOverlayMain() {
           const tMeta = templateManager.templatesArray?.[0]?.rgbToMeta?.get(rgb);
           if (tMeta && typeof tMeta.id === 'number') {
             const displayName = tMeta?.name || `rgb(${r},${g},${b})`;
-            const starLeft = tMeta.premium ? '★ ' : '';
-            labelText = `#${tMeta.id} ${starLeft}${displayName} • ${labelText}`;
+            labelText = `${displayName} • ${labelText}`;
           }
         } catch (ignored) {}
       }

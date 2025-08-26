@@ -80,13 +80,14 @@
   Minor features:
   <ul>
     <li>Show user info without waiting for a pixel placement</li>
+    <li>Don't display color id and star in the filter list</li>
     <li>Made output status box slightly taller</li>
     <li>Save color filtering changes</li>
     <li>Fix the output status showing 1 required pixel for the template</li>
   </ul>
 
   <h3>How to install</h3>
-  Go to <a href="https://github.com/Sonyo-UwU/Wplace-BlueMarble/releases/latest">the latest release</a> and click on <code>BlueMarble.user.js</code>.<br>
+  Go to <a href="https://github.com/Sonyo-UwU/Wplace-BlueMarble/releases/latest">the latest release</a> and click on <code>BlueMarble.user.js</code> under assets.<br>
   Below is the original Blue Marble readme, so following these instructions will install the unmodified version.
 </p>
 
