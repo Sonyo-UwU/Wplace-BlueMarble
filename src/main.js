@@ -570,6 +570,7 @@ function buildOverlayMain() {
               Object.values(t.colorPalette).forEach(v => v.enabled = true);
               [...document.getElementById('bm-colorfilter-list').children].forEach(c => c.firstElementChild.checked = true);
               instance.handleDisplayStatus('Enabled all colors');
+              saveColorPalette();
             };
           }).buildElement()
           .addButton({'id': 'bm-button-colors-disable-all', 'textContent': 'Disable All'}, (instance, button) => {
@@ -579,6 +580,7 @@ function buildOverlayMain() {
               Object.values(t.colorPalette).forEach(v => v.enabled = false);
               [...document.getElementById('bm-colorfilter-list').children].forEach(c => c.firstElementChild.checked = false);
               instance.handleDisplayStatus('Disabled all colors');
+              saveColorPalette();
             };
           }).buildElement()
         .buildElement()
@@ -704,10 +706,12 @@ function buildOverlayMain() {
       row.style.margin = '4px 0';
 
       let swatch = document.createElement('div');
+      swatch.title = 'Select only this color';
       swatch.style.width = '14px';
       swatch.style.height = '14px';
       swatch.style.border = '1px solid rgba(255,255,255,0.5)';
-
+      swatch.style.cursor = 'pointer';
+      
       let label = document.createElement('span');
       label.style.fontSize = '12px';
       let labelText = `${meta.count.toLocaleString()}`;
@@ -739,15 +743,17 @@ function buildOverlayMain() {
       toggle.addEventListener('change', () => {
         meta.enabled = toggle.checked;
         overlayMain.handleDisplayStatus(`${toggle.checked ? 'Enabled' : 'Disabled'} ${rgb}`);
-        try {
-          const t = templateManager.templatesArray?.[0];
-          const key = t?.storageKey;
-          if (t && key && templateManager.templatesJSON?.templates?.[key]) {
-            templateManager.templatesJSON.templates[key].palette = t.colorPalette;
-            // persist immediately
-            GM.setValue('bmTemplates', JSON.stringify(templateManager.templatesJSON));
-          }
-        } catch (_) {}
+        saveColorPalette();
+      });
+
+      swatch.addEventListener('click', e => {
+        const t = templateManager.templatesArray[0];
+        if (!t?.colorPalette) { return; }
+        Object.entries(t.colorPalette).forEach(([k, v]) => v.enabled = (k === rgb));
+        [...document.getElementById('bm-colorfilter-list').children].forEach(c => c.firstElementChild.checked = false);
+        e.target.previousElementSibling.checked = true;
+        overlayMain.handleDisplayStatus(`Enabled only ${rgb}`);
+        saveColorPalette();
       });
 
       row.appendChild(toggle);
@@ -755,6 +761,19 @@ function buildOverlayMain() {
       row.appendChild(label);
       listContainer.appendChild(row);
     }
+    };
+
+  // ------- Helper: Save the color palette to storage -------
+  window.saveColorPalette = function saveColorPalette() {
+    debugger;
+    try {
+      const t = templateManager.templatesArray?.[0];
+      const key = t?.storageKey;
+      if (t && key && templateManager.templatesJSON?.templates?.[key]) {
+        templateManager.templatesJSON.templates[key].palette = t.colorPalette;
+        GM.setValue('bmTemplates', JSON.stringify(templateManager.templatesJSON));
+      }
+    } catch (_) { }
   };
 
   // Listen for template creation/import completion to (re)build palette list
