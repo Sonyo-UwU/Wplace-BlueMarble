@@ -91,7 +91,7 @@
   Below is the original Blue Marble readme, so following these instructions will install the unmodified version.
 
   <h3>Theme</h3>
-  This branch has a custom theme made for <a href="https://camomille1411en.carrd.co/">camomille1411</a>.
+  This branch has a custom theme made for <a href="https://camomille1411en.carrd.co/" target="_blank">camomille1411</a>.
 </p>
 
 <h2>Quick Guide</h2>
