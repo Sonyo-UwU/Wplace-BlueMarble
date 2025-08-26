@@ -84,6 +84,10 @@
     <li>Save color filtering changes</li>
     <li>Fix the output status showing 1 required pixel for the template</li>
   </ul>
+
+  <h3>How to install</h3>
+  Go to <a href="https://github.com/Sonyo-UwU/Wplace-BlueMarble/releases/latest">the latest release</a> and click on <code>BlueMarble.user.js</code>.<br>
+  Below is the original Blue Marble readme, so following these instructions will install the unmodified version.
 </p>
 
 <h2>Quick Guide</h2>
