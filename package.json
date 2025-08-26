@@ -9,6 +9,7 @@
   },
   "scripts": {
     "build": "node build/build.js",
+    "debug-build": "node build/debug-build.js",
     "patch": "node build/patch.js && npm run build"
   },
   "devDependencies": {

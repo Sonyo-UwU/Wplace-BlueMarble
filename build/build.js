@@ -46,7 +46,7 @@ try {
 }
 
 // Fetches the userscript metadata banner
-const metaContent = fs.readFileSync('src/BlueMarble.meta.js', 'utf8');
+let metaContent = fs.readFileSync('src/BlueMarble.meta.js', 'utf8');
 
 // Compiles a string array of all CSS files
 const cssFiles = fs.readdirSync('src/')
@@ -54,7 +54,7 @@ const cssFiles = fs.readdirSync('src/')
   .map(file => `src/${file}`);
 
 // Compiles the CSS files
-esbuild.build({
+await esbuild.build({
   entryPoints: cssFiles,
   bundle: true,
   outfile: 'dist/BlueMarble.user.css',
@@ -94,9 +94,9 @@ let resultTerser = await terser.minify(resultEsbuildJS.text, {
     comments: 'some' // Save legal comments
   },
   compress: {
-    dead_code: isGitHub, // Should unreachable code be removed?
-    drop_console: isGitHub, // Should console code be removed?
-    drop_debugger: isGitHub, // SHould debugger code be removed?
+    dead_code: true, //isGitHub, // Should unreachable code be removed?
+    drop_console: true, //isGitHub, // Should console code be removed?
+    drop_debugger: true, //isGitHub, // SHould debugger code be removed?
     passes: 2 // How many times terser will compress the code
   }
 });
@@ -131,6 +131,9 @@ const mapCSS = mangleSelectors({
 if (mapCSS) {
   fs.writeFileSync('dist/BlueMarble.user.css.map.json', JSON.stringify(mapCSS, null, 2));
 }
+
+// Inject css into the banner
+metaContent += `document.head.appendChild(document.createElement('style')).innerHTML = \`${fs.readFileSync('dist/BlueMarble.user.css', 'utf8').replace('\n', '')}\`;`;
 
 // Adds the banner
 fs.writeFileSync(
