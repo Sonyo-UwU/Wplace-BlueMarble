@@ -510,8 +510,7 @@ export default class TemplateManager {
       // Prefer precomputed per-template required counts; fall back to sum of processed tiles
       const totalRequiredTemplates = this.templatesArray.reduce((sum, t) =>
         sum + (t.requiredPixelCount || t.pixelCount || 0), 0);
-      const totalRequired = totalRequiredTemplates > 1 ? totalRequiredTemplates : aggRequiredTiles;
-      //const totalRequired = aggRequiredTiles;
+      const totalRequired = totalRequiredTemplates >= aggPainted ? totalRequiredTemplates : aggRequiredTiles;
 
       // Turns numbers into formatted number strings. E.g., 1234 -> 1,234 OR 1.234 based on location of user
       const paintedStr = new Intl.NumberFormat().format(aggPainted);
