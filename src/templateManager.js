@@ -314,7 +314,7 @@ export default class TemplateManager {
       // honoring color enable/disable from the active template's palette
       if (tilePixels) {
         try {
-          
+
           const tempWidth = template.bitmap.width;
           const tempHeight = template.bitmap.height;
           const tempCanvas = new OffscreenCanvas(tempWidth, tempHeight);
@@ -508,9 +508,10 @@ export default class TemplateManager {
 
       // Determine total required across all templates
       // Prefer precomputed per-template required counts; fall back to sum of processed tiles
-      const totalRequiredTemplates = this.templatesArray.reduce((sum, t) =>
-        sum + (t.requiredPixelCount || t.pixelCount || 0), 0);
-      const totalRequired = totalRequiredTemplates > 0 ? totalRequiredTemplates : aggRequiredTiles;
+      //const totalRequiredTemplates = this.templatesArray.reduce((sum, t) =>
+      //  sum + (t.requiredPixelCount || t.pixelCount || 0), 0);
+      //const totalRequired = totalRequiredTemplates > 0 ? totalRequiredTemplates : aggRequiredTiles;
+      const totalRequired = aggRequiredTiles;
 
       // Turns numbers into formatted number strings. E.g., 1234 -> 1,234 OR 1.234 based on location of user
       const paintedStr = new Intl.NumberFormat().format(aggPainted);
@@ -518,7 +519,7 @@ export default class TemplateManager {
       const wrongStr = new Intl.NumberFormat().format(totalRequired - aggPainted); // Used to be aggWrong, but that is bugged
 
       this.overlay.handleDisplayStatus(
-        `Displaying ${templateCount} template${templateCount == 1 ? '' : 's'}.\nPainted ${paintedStr} / ${requiredStr} • Wrong ${wrongStr}`
+        `Displaying ${templateCount} template${templateCount == 1 ? '' : 's'}.\nPainted ${paintedStr} / ${requiredStr} (${Math.round(aggPainted / totalRequired * 1000) / 10}%) • Wrong ${wrongStr}`
       );
     } else {
       this.overlay.handleDisplayStatus(`Displaying ${templateCount} templates.`);
