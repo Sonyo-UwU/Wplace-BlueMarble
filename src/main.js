@@ -808,8 +808,7 @@ function buildOverlayMain() {
           const tMeta = templateManager.templatesArray?.[0]?.rgbToMeta?.get(rgb);
           if (tMeta && typeof tMeta.id === 'number') {
             const displayName = tMeta?.name || `rgb(${r},${g},${b})`;
-            const starLeft = tMeta.premium ? '★ ' : '';
-            labelText = `#${tMeta.id} ${starLeft}${displayName} • ${labelText}`;
+            labelText = `${displayName} • ${labelText}`;
           }
         } catch (ignored) {}
       }
