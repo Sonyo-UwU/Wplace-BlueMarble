@@ -547,6 +547,7 @@ export default class TemplateManager {
    * @since 0.72.13
    */
   async #parseBlueMarble(json) {
+    if (!this.templatesJSON) {this.templatesJSON = await this.createJSON(); console.log(`Creating JSON...`);}
 
     console.log(`Parsing BlueMarble...`);
 
@@ -568,7 +569,7 @@ export default class TemplateManager {
           const sortID = Number(templateKeyArray?.[0]); // Sort ID of the template
           const authorID = templateKeyArray?.[1] || '0'; // User ID of the person who exported the template
           const displayName = templateValue.name || `Template ${sortID || ''}`; // Display name of the template
-          //const coords = templateValue?.coords?.split(',').map(Number); // "1,2,3,4" -> [1, 2, 3, 4]
+          const coords = templateValue?.coords?.split(',').map(Number); // "1,2,3,4" -> [1, 2, 3, 4]
           const tilesbase64 = templateValue.tiles;
           const templateTiles = {}; // Stores the template bitmap tiles for each tile.
           let requiredPixelCount = 0; // Global required pixel count for this imported template
@@ -649,6 +650,14 @@ export default class TemplateManager {
           this.templatesArray.push(template);
           console.log(this.templatesArray);
           console.log(`^^^ This ^^^`);
+          debugger;
+          this.templatesJSON.templates[templateKey] = {
+            "name": template.displayName, // Display name of template
+            "coords": coords.join(', '), // The coords of the template
+            "enabled": !!templateValue.enabled,
+            "tiles": templateValue.tiles, // Stores the chunked tile buffers
+            "palette": template.colorPalette // Persist palette and enabled flags
+          };
         }
       }
       // After importing templates from storage, reveal color UI and request palette list build
