@@ -364,7 +364,7 @@ function buildOverlayMain() {
   overlayMain.addDiv({'id': 'bm-overlay', 'style': 'top: 10px; right: 75px;'})
     .addDiv({'id': 'bm-contain-header'})
       .addDiv({'id': 'bm-bar-drag'}).buildElement()
-      .addImg({'alt': 'Blue Marble Icon - Click to minimize/maximize', 'src': 'https://raw.githubusercontent.com/SwingTheVine/Wplace-BlueMarble/main/dist/assets/Favicon.png', 'style': 'cursor: pointer;'}, 
+        .addImg({ 'alt': 'Camo Marble Icon - Click to minimize/maximize', 'src': 'https://cdn.bsky.app/img/avatar/plain/did:plc:kwmxodxbf5nshavpy5r5l3jj/bafkreiaddzuq5vgrpi3aeufp7gwkbameb426d4vb4zlxvc6c4vo23wkn5a@jpeg', 'style': 'cursor: pointer; border-radius: 12px;'}, 
         (instance, img) => {
           /** Click event handler for overlay minimize/maximize functionality.
            * 
@@ -559,8 +559,7 @@ function buildOverlayMain() {
             
             // No status message needed - state change is visually obvious to users
           });
-        }
-      ).buildElement()
+        }).buildElement()
       .addHeader(1, {'textContent': name}).buildElement()
     .buildElement()
 
@@ -660,7 +659,7 @@ function buildOverlayMain() {
           }).buildElement()
         .buildElement()
         .addDiv({'style': 'padding-bottom: 4px;'})
-          .addButton({'className': 'bm-help', 'title': 'Clear', 'style': 'display: inline-flex; background-color: #144eb9; border-radius: 1em; vertical-align: middle;', 'innerHTML': '<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 50 50" style="width: 80%;margin: 0 auto;"><path d="M 21 3 C 11.601563 3 4 10.601563 4 20 C 4 29.398438 11.601563 37 21 37 C 24.355469 37 27.460938 36.015625 30.09375 34.34375 L 42.375 46.625 L 46.625 42.375 L 34.5 30.28125 C 36.679688 27.421875 38 23.878906 38 20 C 38 10.601563 30.398438 3 21 3 Z M 21 7 C 28.199219 7 34 12.800781 34 20 C 34 27.199219 28.199219 33 21 33 C 13.800781 33 8 27.199219 8 20 C 8 12.800781 13.800781 7 21 7 Z"></path></svg>'}, (instance, button) => {
+          .addButton({'className': 'bm-help', 'title': 'Clear', 'style': 'display: inline-flex; border-radius: 1em; vertical-align: middle;', 'innerHTML': '<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 50 50" style="width: 80%;margin: 0 auto;"><path d="M 21 3 C 11.601563 3 4 10.601563 4 20 C 4 29.398438 11.601563 37 21 37 C 24.355469 37 27.460938 36.015625 30.09375 34.34375 L 42.375 46.625 L 46.625 42.375 L 34.5 30.28125 C 36.679688 27.421875 38 23.878906 38 20 C 38 10.601563 30.398438 3 21 3 Z M 21 7 C 28.199219 7 34 12.800781 34 20 C 34 27.199219 28.199219 33 21 33 C 13.800781 33 8 27.199219 8 20 C 8 12.800781 13.800781 7 21 7 Z"></path></svg>'}, (instance, button) => {
             button.addEventListener('click', () => {
               const searchBar = document.getElementById('color-search');
               searchBar.value = '';
@@ -689,7 +688,7 @@ function buildOverlayMain() {
               e.stopPropagation();
             }, { capture: true });
           }).buildElement()
-          .addButton({'className': 'bm-help', 'title': 'Enable currently selected color (v)', 'style': 'display: inline-flex; background-color: #144eb9; border-radius: 1em; vertical-align: middle;', 'innerHTML': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" style="margin: 0 auto;width: 80%;"><path d="M120-120v-190l358-358-58-56 58-56 76 76 124-124q5-5 12.5-8t15.5-3q8 0 15 3t13 8l94 94q5 6 8 13t3 15q0 8-3 15.5t-8 12.5L705-555l76 78-57 57-56-58-358 358H120Zm80-80h78l332-334-76-76-334 332v78Zm447-410 96-96-37-37-96 96 37 37Zm0 0-37-37 37 37Z"></path></svg>'}, (instance, button) => {
+          .addButton({'className': 'bm-help', 'title': 'Enable currently selected color (v)', 'style': 'display: inline-flex; border-radius: 1em; vertical-align: middle;', 'innerHTML': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" style="margin: 0 auto;width: 80%;"><path d="M120-120v-190l358-358-58-56 58-56 76 76 124-124q5-5 12.5-8t15.5-3q8 0 15 3t13 8l94 94q5 6 8 13t3 15q0 8-3 15.5t-8 12.5L705-555l76 78-57 57-56-58-358 358H120Zm80-80h78l332-334-76-76-334 332v78Zm447-410 96-96-37-37-96 96 37 37Zm0 0-37-37 37 37Z"></path></svg>'}, (instance, button) => {
             button.addEventListener('click', enableSelectedColor);
           }).buildElement()
         .buildElement()
@@ -755,7 +754,7 @@ function buildOverlayMain() {
             });
           }).buildElement()
         .buildElement()
-        .addSmall({'textContent': 'Made by SwingTheVine', 'style': 'margin-top: auto;'}).buildElement()
+        .addSmall({'innerHTML': 'Made by SwingTheVine<br>Modified by Sonyo<br>Art by <a href="https://camomille1411en.carrd.co/" style="color: #cb4334;">camomille1411</a>', 'style': 'margin-top: auto; text-align: right;'}).buildElement()
       .buildElement()
     .buildElement()
   .buildOverlay(document.body);
