@@ -650,7 +650,6 @@ export default class TemplateManager {
           this.templatesArray.push(template);
           console.log(this.templatesArray);
           console.log(`^^^ This ^^^`);
-          debugger;
           this.templatesJSON.templates[templateKey] = {
             "name": template.displayName, // Display name of template
             "coords": coords.join(', '), // The coords of the template

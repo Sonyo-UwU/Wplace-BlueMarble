@@ -285,6 +285,81 @@ function buildOverlayMain() {
       GM.setValue('bmCoords', JSON.stringify(data));
     } catch (_) {}
   };
+
+  const persistPalette = () => {
+    try {
+      const t = templateManager.templatesArray?.[0];
+      const key = t?.storageKey;
+      if (t && key && templateManager.templatesJSON?.templates?.[key]) {
+        templateManager.templatesJSON.templates[key].palette = t.colorPalette;
+        GM.setValue('bmTemplates', JSON.stringify(templateManager.templatesJSON));
+      }
+    } catch (_) {}
+  };
+
+  const enableSelectedColor = () => {
+    let background = document.getElementsByClassName('mb-4 mt-3')[0]?.getElementsByClassName('border-primary')[0]?.style.background;
+    let rgb = background?.slice(4, -1).replaceAll(' ', '');
+
+    // Transparent is selected
+    if (rgb === '') {
+      background = 'rgb(222, 250, 206)';
+      rgb = '222,250,206';
+    }
+
+    if (!rgb?.includes(',')) {
+      overlayMain.handleDisplayStatus(`No color selected`);
+      return;
+    }
+
+    const t = templateManager.templatesArray[0];
+    if (!t?.colorPalette) return;
+
+    let inPalette = false;
+
+    // Update palette
+    Object.entries(t.colorPalette).forEach(([k, v]) => {
+      if (k === rgb) {
+        v.enabled = true;
+        inPalette = true;
+      }
+      else {
+        v.enabled = false;
+      }
+    });
+
+    // Update filter list
+    [...document.getElementById('bm-colorfilter-list').children].forEach(c => {
+      if (c.children[1].style.backgroundColor === background) {
+        c.firstElementChild.checked = true;
+        c.scrollIntoView({ 'behavior': 'smooth', 'block': 'center' });
+      }
+      else {
+        c.firstElementChild.checked = false;
+      }
+    });
+
+    if (rgb === '222,250,206') {
+      if (inPalette)
+        overlayMain.handleDisplayStatus(`Enabled only transparent color`);
+      else
+        overlayMain.handleDisplayStatus(`Transparent color is not in palette`);
+    }
+    else {
+      if (inPalette)
+        overlayMain.handleDisplayStatus(`Enabled only ${rgb}`);
+      else
+        overlayMain.handleDisplayStatus(`Color ${rgb} is not in palette`);
+    }
+
+    persistPalette();
+  };
+
+  // Add keyboard shortcut
+  document.addEventListener('keydown', e => {
+    if (e.key === 'v')
+      enableSelectedColor();
+  });
   
   overlayMain.addDiv({'id': 'bm-overlay', 'style': 'top: 10px; right: 75px;'})
     .addDiv({'id': 'bm-contain-header'})
@@ -570,7 +645,7 @@ function buildOverlayMain() {
               Object.values(t.colorPalette).forEach(v => v.enabled = true);
               [...document.getElementById('bm-colorfilter-list').children].forEach(c => c.firstElementChild.checked = true);
               instance.handleDisplayStatus('Enabled all colors');
-              saveColorPalette();
+              persistPalette();
             };
           }).buildElement()
           .addButton({'id': 'bm-button-colors-disable-all', 'textContent': 'Disable All'}, (instance, button) => {
@@ -580,7 +655,7 @@ function buildOverlayMain() {
               Object.values(t.colorPalette).forEach(v => v.enabled = false);
               [...document.getElementById('bm-colorfilter-list').children].forEach(c => c.firstElementChild.checked = false);
               instance.handleDisplayStatus('Disabled all colors');
-              saveColorPalette();
+              persistPalette();
             };
           }).buildElement()
         .buildElement()
@@ -592,7 +667,7 @@ function buildOverlayMain() {
               searchBar.dispatchEvent(new Event('input'));
             });
           }).buildElement()
-          .addInput({'id': 'color-search', 'type': 'text', placeholder: 'Search', 'style': 'background-color: #0003; padding: 0 .5ch; font-size: small; width: calc(90% - 1ch); margin-left: 1ch;'}, (instance, input) => {
+          .addInput({ 'id': 'color-search', 'type': 'text', placeholder: 'Search', 'style': 'background-color: #0003; padding: 0 .5ch; font-size: small; width: calc(82% - 2ch); margin-left: 1ch;  margin-right: 1ch;'}, (instance, input) => {
             input.addEventListener('input', e => {
               const listContainer = document.getElementById('bm-colorfilter-list');
               const searchText = e.target.value.toLowerCase();
@@ -613,6 +688,9 @@ function buildOverlayMain() {
               // I and E shortcuts
               e.stopPropagation();
             }, { capture: true });
+          }).buildElement()
+          .addButton({'className': 'bm-help', 'title': 'Enable currently selected color', 'style': 'display: inline-flex; background-color: #144eb9; border-radius: 1em; vertical-align: middle;', 'innerHTML': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" style="margin: 0 auto;width: 80%;"><path d="M120-120v-190l358-358-58-56 58-56 76 76 124-124q5-5 12.5-8t15.5-3q8 0 15 3t13 8l94 94q5 6 8 13t3 15q0 8-3 15.5t-8 12.5L705-555l76 78-57 57-56-58-358 358H120Zm80-80h78l332-334-76-76-334 332v78Zm447-410 96-96-37-37-96 96 37 37Zm0 0-37-37 37 37Z"></path></svg>'}, (instance, button) => {
+            button.addEventListener('click', enableSelectedColor);
           }).buildElement()
         .buildElement()
         .addDiv({'id': 'bm-colorfilter-list', 'style': 'max-height: 120px; overflow: auto;'}).buildElement()
@@ -706,7 +784,7 @@ function buildOverlayMain() {
       row.style.margin = '4px 0';
 
       let swatch = document.createElement('div');
-      swatch.title = 'Select only this color';
+      swatch.title = 'Enable only this color';
       swatch.style.width = '14px';
       swatch.style.height = '14px';
       swatch.style.border = '1px solid rgba(255,255,255,0.5)';
@@ -743,7 +821,7 @@ function buildOverlayMain() {
       toggle.addEventListener('change', () => {
         meta.enabled = toggle.checked;
         overlayMain.handleDisplayStatus(`${toggle.checked ? 'Enabled' : 'Disabled'} ${rgb}`);
-        saveColorPalette();
+        persistPalette();
       });
 
       swatch.addEventListener('click', e => {
@@ -753,7 +831,7 @@ function buildOverlayMain() {
         [...document.getElementById('bm-colorfilter-list').children].forEach(c => c.firstElementChild.checked = false);
         e.target.previousElementSibling.checked = true;
         overlayMain.handleDisplayStatus(`Enabled only ${rgb}`);
-        saveColorPalette();
+        persistPalette();
       });
 
       row.appendChild(toggle);
@@ -762,19 +840,6 @@ function buildOverlayMain() {
       listContainer.appendChild(row);
     }
     };
-
-  // ------- Helper: Save the color palette to storage -------
-  window.saveColorPalette = function saveColorPalette() {
-    debugger;
-    try {
-      const t = templateManager.templatesArray?.[0];
-      const key = t?.storageKey;
-      if (t && key && templateManager.templatesJSON?.templates?.[key]) {
-        templateManager.templatesJSON.templates[key].palette = t.colorPalette;
-        GM.setValue('bmTemplates', JSON.stringify(templateManager.templatesJSON));
-      }
-    } catch (_) { }
-  };
 
   // Listen for template creation/import completion to (re)build palette list
   window.addEventListener('message', (event) => {
