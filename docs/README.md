@@ -4,6 +4,9 @@
     <td valign="top" rowspan="99"><a href="https://discord.gg/tpeBPy46hf"><img alt="Discord Banner" src="https://discord.com/api/guilds/796124137042608188/widget.png?style=banner4"></a></td>
   </tr>
   <tr>
+    <td>&emsp;<a href="#this-version">This version</a></td>
+  </tr>
+  <tr>
     <td>&emsp;<a href="#quick-guide">Quick Guide</a></td>
   </tr>
   <tr>
@@ -60,6 +63,25 @@
 <a href="" target="_blank" rel="noopener noreferrer"><img alt="Pages" src="https://github.com/SwingTheVine/Wplace-BlueMarble/actions/workflows/pages/pages-build-deployment/badge.svg?branch=wiki"></a>
 <a href="" target="_blank" rel="noopener noreferrer"><img alt="CodeQL" src="https://github.com/SwingTheVine/Wplace-BlueMarble/actions/workflows/github-code-scanning/codeql/badge.svg"></a>
 <a href="https://www.bestpractices.dev/projects/11067" target="_blank" rel="noopener noreferrer"><img alt="OpenSSF Best Practices" src="https://www.bestpractices.dev/projects/11067/badge"></a>
+
+<h2>This version</h2>
+<p>
+  This is a modification of Blue Marble, made by Sonyo.<br>
+  Major features:
+  <ul>
+    <li>Search bar for the color filter list</li>
+    <li>Click on the color squares to enable only that color</li>
+    <li>Button to only enable the currently selected color</li>
+    <li>Display pixels painted percentage in the output status</li>
+  </ul>
+  Minor features:
+  <ul>
+    <li>Show user info without waiting for a pixel placement</li>
+    <li>Made output status box slightly taller</li>
+    <li>Save color filtering changes</li>
+    <li>Fix the output status showing 1 required pixel for the template</li>
+  </ul>
+</p>
 
 <h2>Quick Guide</h2>
 <p>
