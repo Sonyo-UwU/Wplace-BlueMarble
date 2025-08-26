@@ -314,7 +314,7 @@ export default class TemplateManager {
       // honoring color enable/disable from the active template's palette
       if (tilePixels) {
         try {
-
+          
           const tempWidth = template.bitmap.width;
           const tempHeight = template.bitmap.height;
           const tempCanvas = new OffscreenCanvas(tempWidth, tempHeight);

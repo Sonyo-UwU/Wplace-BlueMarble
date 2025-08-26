@@ -33,6 +33,9 @@
   <tr>
     <td>&emsp;&emsp;<a href="#is-blue-marble-malware">Is Blue Marble malware?</a></td>
   </tr>
+    <tr>
+    <td>&emsp;&emsp;<a href="#why-are-some-pixels-not-showing-on-the-overlay">Why are some pixels not showing on the overlay?</a></td>
+  </tr>
   <tr>
     <td>&emsp;&emsp;<a href="#how-can-blue-marble-place-pixels-for-me">How can Blue Marble place pixels for me?</a></td>
   </tr>
@@ -128,7 +131,7 @@
     <summary>
       <b>I want to visit the website.</b> <sup>(Click to Expand)</sup>
     </summary>
-    <a href="https://bluemarble.camilledaguin.fr/" target="_blank" rel="noopener noreferrer">Click here</a> to visit the official Blue Marble website.
+    <a href="https://bluemarble.lol/" target="_blank" rel="noopener noreferrer">Click here</a> to visit the official Blue Marble website.
   </details>
 </p>
 
@@ -140,9 +143,11 @@
     <li>Displaying a simple coordinate system (tile coordinats & pixel coordinates)</li>
     <li>Allowing you to move the color palette to the top of the screen when placing pixels</li>
     <li>Allowing you to use the eyedropper on the template image, provided the colors are correct</li>
+    <li>Minimizing or maximizing the menu to switch between compact and full views</li>
+    <li>Filtering overlay colors by toggling individual template colors or using global enable/disable buttons</li>
     <li>...and more!</li>
   </ul>
-  If you like this userscript, please ⭐ the repository! For more information and updates, visit the <a href="https://bluemarble.camilledaguin.fr/" target="_blank" rel="noopener noreferrer">Blue Marble website</a>. If you wish to contribute to Blue Marble, check out the <a href="https://github.com/SwingTheVine/Wplace-BlueMarble/blob/main/docs/CONTRIBUTING.md" target="_blank" rel="noopener noreferrer">CONTRIBUTING.md</a> file in <code>docs/</code>.
+  If you like this userscript, please ⭐ the repository! For more information and updates, visit the <a href="https://bluemarble.lol/" target="_blank" rel="noopener noreferrer">Blue Marble website</a>. If you wish to contribute to Blue Marble, check out the <a href="https://github.com/SwingTheVine/Wplace-BlueMarble/blob/main/docs/CONTRIBUTING.md" target="_blank" rel="noopener noreferrer">CONTRIBUTING.md</a> file in <code>docs/</code>.
 
   <img alt="Showcase image of Blue Marble template" src="./assets/Showcase1.png">
 
@@ -214,7 +219,7 @@
       <ol>
         <li>Install the <a href="https://addons.mozilla.org/en-US/firefox/addon/tampermonkey/" target="_blank" rel="noopener noreferrer">TamperMonkey</a> plugin for Firefox.
         <br>
-        <img alt="Click the 'Add to Firefox' button" src="https://github.com/SwingTheVine/Wplace-BlueMarble/blob/main/docs/assets/ComputerFireFoxInstall1.png"></li>
+        <img alt="Click the 'Add to Firefox' button" src="https://github.com/SwingTheVine/Wplace-BlueMarble/blob/main/docs/assets/ComputerFirefoxInstall1.png"></li>
         <li><strong>One-click install:</strong> Click this link to Install Blue Marble directly: <a href="https://github.com/SwingTheVine/Wplace-BlueMarble/releases/download/pre/BlueMarble.user.js" target="_blank" rel="noopener noreferrer"><strong>Install Blue Marble</strong></a>
         <br>
         TamperMonkey will automatically detect the userscript and prompt you to install it.</li>
@@ -288,11 +293,28 @@
   <h3>Is Blue Marble malware?</h3>
   <p><b>A:</b> Blue Marble does not contain malicious code. The Blue Marble code can be found in the <code>src/</code> folder. If you worry about Blue Marble being malware, you can read the code, then bundle it yourself using the tools in <code>build/</code>.
 
+  <h3>Why are some pixels not showing on the overlay?</h3>
+  <p><b>A:</b> This usually happens if the template image is not converted to the Wplace color palette. You should convert your template using a color converter for Wplace, or manually adjust the template image to match the Wplace color palette. Also check that no pixels are disabled in the filter settings of the Blue Marble menu.</p>
+
   <h3>How can Blue Marble place pixels for me?</h3>
   <p><b>A:</b> Unfortunately, Blue Marble will not support the automatic placement of pixels without user interaction because it is not allowed by Wplace.
 
   <h3>How do I hide the overlay?</h3>
-  <p><b>A:</b> Turn the userscript off and refresh the page.</p>
+  <p><b>A:</b> You can temporarily hide the overlay by clicking the "Disable" button in the Blue Marble menu.  
+  <br>
+  If you want to completely remove both the overlay and the Blue Marble menu, turn off the userscript in Tampermonkey and refresh the page.</p>
+
+  <h3>How do I tell colors apart?</h3>
+  <p><b>A:</b> Find the color in the color filter list. Click the checkbox to turn the color on or off. If you want to work on only one color at a time (recommended), then click "Disable All" in the color filter. Finally, enable the checkbox next to the color you want to place. This way, only one color on your template will appear at a time.</p>
+
+  <h3>How do get the color of a pixel?</h3>
+  <p><b>A:</b> Use the eyedropper in the palette menu of wplace. If your template colors match the wplace palette, you can select the template pixel dot to get the template's color for that pixel.</p>
+
+  <h3>How do I tell colors apart?</h3>
+  <p><b>A:</b> Find the color in the color filter list. Click the checkbox to turn the color on or off. If you want to work on only one color at a time (recommended), then click "Disable All" in the color filter. Finally, enable the checkbox next to the color you want to place. This way, only one color on your template will appear at a time.</p>
+
+  <h3>How do get the color of a pixel?</h3>
+  <p><b>A:</b> Use the eyedropper in the palette menu of wplace. If your template colors match the wplace palette, you can select the template pixel dot to get the template's color for that pixel.</p>
 
   <h3>How do I tell colors apart?</h3>
   <p><b>A:</b> Find the color in the color filter list. Click the checkbox to turn the color on or off. If you want to work on only one color at a time (recommended), then click "Disable All" in the color filter. Finally, enable the checkbox next to the color you want to place. This way, only one color on your template will appear at a time.</p>
