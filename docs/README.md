@@ -80,6 +80,7 @@
   Minor features:
   <ul>
     <li>Show user info without waiting for a pixel placement</li>
+    <li>Don't display color id and star in the filter list</li>
     <li>Made output status box slightly taller</li>
     <li>Save color filtering changes</li>
     <li>Fix the output status showing 1 required pixel for the template</li>
