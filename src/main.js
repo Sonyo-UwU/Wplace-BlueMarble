@@ -754,7 +754,7 @@ function buildOverlayMain() {
             });
           }).buildElement()
         .buildElement()
-        .addSmall({'innerHTML': 'Made by SwingTheVine<br>Modified by Sonyo<br>Art by <a href="https://camomille1411en.carrd.co/" style="color: #cb4334;">camomille1411</a>', 'style': 'margin-top: auto; text-align: right;'}).buildElement()
+        .addSmall({'innerHTML': 'Made by SwingTheVine<br>Modified by Sonyo<br>Art by <a href="https://camomille1411en.carrd.co/">camomille1411</a>', 'style': 'margin-top: auto; text-align: right;'}).buildElement()
       .buildElement()
     .buildElement()
   .buildOverlay(document.body);
