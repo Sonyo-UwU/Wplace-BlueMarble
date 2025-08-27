@@ -158,8 +158,8 @@ inject(() => {
 });
 
 // Imports the CSS file from dist folder on github
-const cssOverlay = GM_getResourceText("CSS-BM-File");
-GM_addStyle(cssOverlay);
+//const cssOverlay = GM_getResourceText("CSS-BM-File");
+//GM_addStyle(cssOverlay);
 
 // Imports the Roboto Mono font family
 var stylesheetLink = document.createElement('link');

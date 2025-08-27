@@ -11,7 +11,6 @@
 // @updateURL    https://github.com/Sonyo-UwU/Wplace-BlueMarble/raw/refs/heads/main/dist/BlueMarble.user.js
 // @downloadURL  https://raw.githubusercontent.com/Sonyo-UwU/Wplace-BlueMarble/main/dist/BlueMarble.user.js
 // @match        https://wplace.live/*
-// @grant        GM_getResourceText
 // @grant        GM_addStyle
 // @grant        GM.setValue
 // @grant        GM_getValue
