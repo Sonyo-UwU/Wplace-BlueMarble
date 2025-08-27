@@ -24,7 +24,7 @@ try {
 }
 
 // Fetches the userscript metadata banner
-let metaContent = fs.readFileSync('src/CamoMarble.meta.js', 'utf8');
+let metaContent = fs.readFileSync('src/BlueMarble.meta.js', 'utf8');
 
 // Compiles a string array of all CSS files
 const cssFiles = fs.readdirSync('src/')
@@ -35,18 +35,18 @@ const cssFiles = fs.readdirSync('src/')
 await esbuild.build({
   entryPoints: cssFiles,
   bundle: true,
-  outfile: 'dist/CamoMarble.user.css',
+  outfile: 'dist/BlueMarble.user.css',
   minify: true
 });
 
 // Inject css into the banner
-metaContent += `GM_addStyle(\`${fs.readFileSync('dist/CamoMarble.user.css', 'utf8').replace('\n', '')}\`);\r\n`;
+metaContent += `GM_addStyle(\`${fs.readFileSync('dist/BlueMarble.user.css', 'utf8').replace('\n', '')}\`);\r\n`;
 
 // Compiles the JS files
 await esbuild.build({
   entryPoints: ['src/main.js'], // "Infect" the files from this point (it spreads from this "patient 0")
   bundle: true, // Should the code be bundled?
-  outfile: 'dist/CamoMarble.user.js', // The file the bundled code is exported to
+  outfile: 'dist/BlueMarble.user.js', // The file the bundled code is exported to
   format: 'iife', // What format the bundler bundles the code into
   target: 'es2020', // What is the minimum version/year that should be supported? When omited, it attempts to support backwards compatability with legacy browsers
   platform: 'browser', // The platform the bundled code will be operating on
@@ -60,9 +60,9 @@ await esbuild.build({
 
 // Correct inconsistent end of lines
 fs.writeFileSync(
-  'dist/CamoMarble.user.js',
-  fs.readFileSync('dist/CamoMarble.user.js', 'utf8').replaceAll('\r\n', '\n').replaceAll('\n', '\r\n'),
-  'utf8'
+    'dist/BlueMarble.user.js',
+    fs.readFileSync('dist/BlueMarble.user.js', 'utf8').replaceAll('\r\n', '\n').replaceAll('\n', '\r\n'),
+    'utf8'
 );
 
 console.log(`${consoleStyle.GREEN + consoleStyle.BOLD + consoleStyle.UNDERLINE}Building complete!${consoleStyle.RESET}`);

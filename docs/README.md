@@ -89,9 +89,6 @@
   <h3>How to install</h3>
   Go to <a href="https://github.com/Sonyo-UwU/Wplace-BlueMarble/releases/latest">the latest release</a> and click on <code>BlueMarble.user.js</code> under assets.<br>
   Below is the original Blue Marble readme, so following these instructions will install the unmodified version.
-
-  <h3>Theme</h3>
-  This branch has a custom theme made for <a href="https://camomille1411en.carrd.co/">camomille1411</a>.
 </p>
 
 <h2>Quick Guide</h2>
