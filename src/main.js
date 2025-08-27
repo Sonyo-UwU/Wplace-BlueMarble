@@ -357,8 +357,20 @@ function buildOverlayMain() {
 
   // Add keyboard shortcut
   document.addEventListener('keydown', e => {
-    if (e.key === 'v' && !e.ctrlKey)
-      enableSelectedColor();
+    if (e.ctrlKey || e.altKey)
+      return;
+
+    switch (e.key) {
+      case 'v':
+        enableSelectedColor();
+        break;
+      case 'a':
+        document.getElementById('bm-button-colors-enable-all').click();
+        break;
+      case 'd':
+        document.getElementById('bm-button-colors-disable-all').click();
+        break;
+    }
   });
   
   overlayMain.addDiv({'id': 'bm-overlay', 'style': 'top: 10px; right: 75px;'})
