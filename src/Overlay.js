@@ -302,6 +302,81 @@ export default class Overlay {
     return this;
   }
 
+  /** Adds a `kbd` to the overlay.
+   * This `kbd` element will have properties shared between all `kbd` elements in the overlay.
+   * You can override the shared properties by using a callback.
+   * @param {Object.<string, any>} [additionalProperties={}] - The DOM properties of the `kbd` that are NOT shared between all overlay `kbd` elements. These should be camelCase.
+   * @param {function(Overlay, HTMLParagraphElement):void} [callback=()=>{}] - Additional JS modification to the `kbd`.
+   * @returns {Overlay} Overlay class instance (this)
+   * @since 0.43.2
+   * @example
+   * // Assume all <kbd> elements have a shared class (e.g. {'className': 'bar'})
+   * overlay.addKbd({'id': 'foo', 'textContent': 'Foobar.'}).buildOverlay(document.body);
+   * // Output:
+   * // (Assume <body> already exists in the webpage)
+   * <body>
+   *   <kbd id="foo" class="bar">Foobar.</kbd>
+   * </body>
+   */
+  addKbd(additionalProperties = {}, callback = () => {}) {
+
+    const properties = {'className': 'kbd kbd-xs text-base-content touchscreen:hidden ml-0.5 rounded-md'}; // Shared <kbd> DOM properties
+
+    const kbd = this.#createElement('kbd', properties, additionalProperties); // Creates the <kbd> element
+    callback(this, kbd); // Runs any script passed in through the callback
+    return this;
+  }
+
+  /** Adds a `div` with the 'tooltip' class to the overlay.
+   * This `div` element will have properties shared between all `div` elements in the overlay.
+   * You can override the shared properties by using a callback.
+   * @param {Object.<string, any>} [additionalProperties={}] - The DOM properties of the `div` that are NOT shared between all overlay `div` elements. These should be camelCase.
+   * @param {function(Overlay, HTMLDivElement):void} [callback=()=>{}] - Additional JS modification to the `div`.
+   * @returns {Overlay} Overlay class instance (this)
+   * @since 0.43.2
+   * @example
+   * overlay.addTooltip({'id': 'foo'}).buildOverlay(document.body);
+   * // Output:
+   * // (Assume <body> already exists in the webpage)
+   * <body>
+   *   <div id="foo" class="tooltip"></div>
+   * </body>
+   */
+  addTooltip(additionalProperties = {}, callback = () => { }) {
+    if (additionalProperties.className)
+      additionalProperties.className += ' tooltip';
+    else
+      additionalProperties.className = 'tooltip';
+
+    return this.addDiv(additionalProperties, callback);
+  }
+
+  /** Adds a `div` with the 'tooltip-content' class to the overlay.
+   * This `div` element will have properties shared between all `div` elements in the overlay.
+   * You can override the shared properties by using a callback.
+   * @param {Object.<string, any>} [additionalProperties={}] - The DOM properties of the `div` that are NOT shared between all overlay `div` elements. These should be camelCase.
+   * @param {function(Overlay, HTMLDivElement):void} [callback=()=>{}] - Additional JS modification to the `div`.
+   * @returns {Overlay} Overlay class instance (this)
+   * @since 0.43.2
+   * @example
+   * overlay.addTooltip().addTooltipContent({'id': 'foo', 'textContent': 'Foobar.'}).buildElement().buildOverlay(document.body);
+   * // Output:
+   * // (Assume <body> already exists in the webpage)
+   * <body>
+   *   <div class="tooltip">
+   *     <div id="foo" class="tooltip-content">Foobar.</div>
+   *   </div>
+   * </body>
+   */
+  addTooltipContent(additionalProperties = {}, callback = () => { }) {
+    if (additionalProperties.className)
+      additionalProperties.className += ' tooltip-content';
+    else
+      additionalProperties.className = 'tooltip-content';
+
+    return this.addDiv(additionalProperties, callback);
+  }
+
   /** Adds a checkbox to the overlay.
    * This checkbox element will have properties shared between all checkbox elements in the overlay.
    * You can override the shared properties by using a callback. Note: the checkbox element is inside a label element.

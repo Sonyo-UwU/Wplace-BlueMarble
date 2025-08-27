@@ -158,8 +158,8 @@ inject(() => {
 });
 
 // Imports the CSS file from dist folder on github
-const cssOverlay = GM_getResourceText("CSS-BM-File");
-GM_addStyle(cssOverlay);
+//const cssOverlay = GM_getResourceText("CSS-BM-File");
+//GM_addStyle(cssOverlay);
 
 // Imports the Roboto Mono font family
 var stylesheetLink = document.createElement('link');
@@ -357,8 +357,20 @@ function buildOverlayMain() {
 
   // Add keyboard shortcut
   document.addEventListener('keydown', e => {
-    if (e.key === 'v' && !e.ctrlKey)
-      enableSelectedColor();
+    if (e.ctrlKey || e.altKey)
+      return;
+
+    switch (e.key) {
+      case 'v':
+        enableSelectedColor();
+        break;
+      case 'a':
+        document.getElementById('bm-button-colors-enable-all').click();
+        break;
+      case 'd':
+        document.getElementById('bm-button-colors-disable-all').click();
+        break;
+    }
   });
   
   overlayMain.addDiv({'id': 'bm-overlay', 'style': 'top: 10px; right: 75px;'})
@@ -597,7 +609,7 @@ function buildOverlayMain() {
             }
           }
         ).buildElement()
-        .addInput({'type': 'number', 'id': 'bm-input-tx', 'placeholder': 'Tl X', 'min': 0, 'max': 2047, 'step': 1, 'required': true, 'value': (savedCoords.tx ?? '')}, (instance, input) => {
+        .addInput({'type': 'number', 'id': 'bm-input-tx', 'placeholder': 'Tl X', 'min': 0, 'max': 2047, 'step': 1, 'required': true, 'value': (savedCoords['tx'] ?? '')}, (instance, input) => {
           //if a paste happens on tx, split and format it into other coordinates if possible
           input.addEventListener("paste", (event) => {
             let splitText = (event.clipboardData || window.clipboardData).getData("text").split(" ").filter(n => n).map(Number).filter(n => !isNaN(n)); //split and filter all Non Numbers
@@ -611,61 +623,71 @@ function buildOverlayMain() {
             for (let i = 0; i < coords.length; i++) { 
               coords[i].value = splitText[i]; //add the split vales
             }
+            persistCoords();
 
             event.preventDefault(); //prevent the pasting of the original paste that would overide the split value
           })
-          const handler = () => persistCoords();
-          input.addEventListener('input', handler);
-          input.addEventListener('change', handler);
+          input.addEventListener('input', persistCoords);
+          input.addEventListener('change', persistCoords);
         }).buildElement()
-        .addInput({'type': 'number', 'id': 'bm-input-ty', 'placeholder': 'Tl Y', 'min': 0, 'max': 2047, 'step': 1, 'required': true, 'value': (savedCoords.ty ?? '')}, (instance, input) => {
-          const handler = () => persistCoords();
-          input.addEventListener('input', handler);
-          input.addEventListener('change', handler);
+        .addInput({'type': 'number', 'id': 'bm-input-ty', 'placeholder': 'Tl Y', 'min': 0, 'max': 2047, 'step': 1, 'required': true, 'value': (savedCoords['ty'] ?? '')}, (instance, input) => {
+          input.addEventListener('input', persistCoords);
+          input.addEventListener('change', persistCoords);
         }).buildElement()
-        .addInput({'type': 'number', 'id': 'bm-input-px', 'placeholder': 'Px X', 'min': 0, 'max': 2047, 'step': 1, 'required': true, 'value': (savedCoords.px ?? '')}, (instance, input) => {
-          const handler = () => persistCoords();
-          input.addEventListener('input', handler);
-          input.addEventListener('change', handler);
+        .addInput({'type': 'number', 'id': 'bm-input-px', 'placeholder': 'Px X', 'min': 0, 'max': 2047, 'step': 1, 'required': true, 'value': (savedCoords['px'] ?? '')}, (instance, input) => {
+          input.addEventListener('input', persistCoords);
+          input.addEventListener('change', persistCoords);
         }).buildElement()
-        .addInput({'type': 'number', 'id': 'bm-input-py', 'placeholder': 'Px Y', 'min': 0, 'max': 2047, 'step': 1, 'required': true, 'value': (savedCoords.py ?? '')}, (instance, input) => {
-          const handler = () => persistCoords();
-          input.addEventListener('input', handler);
-          input.addEventListener('change', handler);
+        .addInput({'type': 'number', 'id': 'bm-input-py', 'placeholder': 'Px Y', 'min': 0, 'max': 2047, 'step': 1, 'required': true, 'value': (savedCoords['py'] ?? '')}, (instance, input) => {
+          input.addEventListener('input', persistCoords);
+          input.addEventListener('change', persistCoords);
         }).buildElement()
       .buildElement()
       // Color filter UI
       .addDiv({'id': 'bm-contain-colorfilter', 'style': 'border: 1px solid rgba(255,255,255,0.1); padding: 4px; border-radius: 4px; margin-top: 4px; display: none;'})
         .addDiv({'style': 'display: flex; gap: 6px; margin-bottom: 6px;'})
-          .addButton({'id': 'bm-button-colors-enable-all', 'textContent': 'Enable All'}, (instance, button) => {
-            button.onclick = () => {
-              const t = templateManager.templatesArray[0];
-              if (!t?.colorPalette) { return; }
-              Object.values(t.colorPalette).forEach(v => v.enabled = true);
-              [...document.getElementById('bm-colorfilter-list').children].forEach(c => c.firstElementChild.checked = true);
-              instance.handleDisplayStatus('Enabled all colors');
-              persistPalette();
-            };
-          }).buildElement()
-          .addButton({'id': 'bm-button-colors-disable-all', 'textContent': 'Disable All'}, (instance, button) => {
-            button.onclick = () => {
-              const t = templateManager.templatesArray[0];
-              if (!t?.colorPalette) { return; }
-              Object.values(t.colorPalette).forEach(v => v.enabled = false);
-              [...document.getElementById('bm-colorfilter-list').children].forEach(c => c.firstElementChild.checked = false);
-              instance.handleDisplayStatus('Disabled all colors');
-              persistPalette();
-            };
-          }).buildElement()
+          .addTooltip()
+            .addTooltipContent({'textContent': 'Enable all colors'})
+              .addKbd({'textContent': 'A'}).buildElement()
+            .buildElement()
+            .addButton({'id': 'bm-button-colors-enable-all', 'textContent': 'Enable All'}, (instance, button) => {
+              button.onclick = () => {
+                const t = templateManager.templatesArray[0];
+                if (!t?.colorPalette) { return; }
+                Object.values(t.colorPalette).forEach(v => v.enabled = true);
+                [...document.getElementById('bm-colorfilter-list').children].forEach(c => c.firstElementChild.checked = true);
+                instance.handleDisplayStatus('Enabled all colors');
+                persistPalette();
+              };
+            }).buildElement()
+          .buildElement()
+          .addTooltip()
+            .addTooltipContent({'textContent': 'Disable all colors'})
+              .addKbd({'textContent': 'D'}).buildElement()
+            .buildElement()
+            .addButton({'id': 'bm-button-colors-disable-all', 'textContent': 'Disable All'}, (instance, button) => {
+              button.onclick = () => {
+                const t = templateManager.templatesArray[0];
+                if (!t?.colorPalette) { return; }
+                Object.values(t.colorPalette).forEach(v => v.enabled = false);
+                [...document.getElementById('bm-colorfilter-list').children].forEach(c => c.firstElementChild.checked = false);
+                instance.handleDisplayStatus('Disabled all colors');
+                persistPalette();
+              };
+            }).buildElement()
+          .buildElement()
         .buildElement()
         .addDiv({'style': 'padding-bottom: 4px;'})
-          .addButton({'className': 'bm-help', 'title': 'Clear', 'style': 'display: inline-flex; border-radius: 1em; vertical-align: middle;', 'innerHTML': '<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 50 50" style="width: 80%;margin: 0 auto;"><path d="M 21 3 C 11.601563 3 4 10.601563 4 20 C 4 29.398438 11.601563 37 21 37 C 24.355469 37 27.460938 36.015625 30.09375 34.34375 L 42.375 46.625 L 46.625 42.375 L 34.5 30.28125 C 36.679688 27.421875 38 23.878906 38 20 C 38 10.601563 30.398438 3 21 3 Z M 21 7 C 28.199219 7 34 12.800781 34 20 C 34 27.199219 28.199219 33 21 33 C 13.800781 33 8 27.199219 8 20 C 8 12.800781 13.800781 7 21 7 Z"></path></svg>'}, (instance, button) => {
-            button.addEventListener('click', () => {
-              const searchBar = document.getElementById('color-search');
-              searchBar.value = '';
-              searchBar.dispatchEvent(new Event('input'));
-            });
-          }).buildElement()
+          .addTooltip()
+            .addTooltipContent({'textContent': 'Clear'}).buildElement()
+            .addButton({'className': 'bm-help', 'style': 'display: inline-flex; border-radius: 1em; vertical-align: middle;', 'innerHTML': '<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 50 50" style="width: 80%;margin: 0 auto;"><path d="M 21 3 C 11.601563 3 4 10.601563 4 20 C 4 29.398438 11.601563 37 21 37 C 24.355469 37 27.460938 36.015625 30.09375 34.34375 L 42.375 46.625 L 46.625 42.375 L 34.5 30.28125 C 36.679688 27.421875 38 23.878906 38 20 C 38 10.601563 30.398438 3 21 3 Z M 21 7 C 28.199219 7 34 12.800781 34 20 C 34 27.199219 28.199219 33 21 33 C 13.800781 33 8 27.199219 8 20 C 8 12.800781 13.800781 7 21 7 Z"></path></svg>'}, (instance, button) => {
+              button.addEventListener('click', () => {
+                const searchBar = document.getElementById('color-search');
+                searchBar.value = '';
+                searchBar.dispatchEvent(new Event('input'));
+              });
+            }).buildElement()
+          .buildElement()
           .addInput({ 'id': 'color-search', 'type': 'text', placeholder: 'Search', 'style': 'background-color: #0003; padding: 0 .5ch; font-size: small; width: calc(100% - 2ch - 48px); margin-left: 1ch;  margin-right: 1ch;'}, (instance, input) => {
             input.addEventListener('input', e => {
               const listContainer = document.getElementById('bm-colorfilter-list');
@@ -688,9 +710,14 @@ function buildOverlayMain() {
               e.stopPropagation();
             }, { capture: true });
           }).buildElement()
-          .addButton({'className': 'bm-help', 'title': 'Enable currently selected color (v)', 'style': 'display: inline-flex; border-radius: 1em; vertical-align: middle;', 'innerHTML': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" style="margin: 0 auto;width: 80%;"><path d="M120-120v-190l358-358-58-56 58-56 76 76 124-124q5-5 12.5-8t15.5-3q8 0 15 3t13 8l94 94q5 6 8 13t3 15q0 8-3 15.5t-8 12.5L705-555l76 78-57 57-56-58-358 358H120Zm80-80h78l332-334-76-76-334 332v78Zm447-410 96-96-37-37-96 96 37 37Zm0 0-37-37 37 37Z"></path></svg>'}, (instance, button) => {
-            button.addEventListener('click', enableSelectedColor);
-          }).buildElement()
+          .addTooltip()
+            .addTooltipContent({'textContent': 'Enable selected'})
+              .addKbd({'textContent': 'V'}).buildElement()
+            .buildElement()
+            .addButton({'className': 'bm-help', 'style': 'display: inline-flex; border-radius: 1em; vertical-align: middle;', 'innerHTML': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" style="margin: 0 auto;width: 80%;"><path d="M120-120v-190l358-358-58-56 58-56 76 76 124-124q5-5 12.5-8t15.5-3q8 0 15 3t13 8l94 94q5 6 8 13t3 15q0 8-3 15.5t-8 12.5L705-555l76 78-57 57-56-58-358 358H120Zm80-80h78l332-334-76-76-334 332v78Zm447-410 96-96-37-37-96 96 37 37Zm0 0-37-37 37 37Z"></path></svg>'}, (instance, button) => {
+              button.addEventListener('click', enableSelectedColor);
+            }).buildElement()
+          .buildElement()
         .buildElement()
         .addDiv({'id': 'bm-colorfilter-list', 'style': 'max-height: 120px; overflow: auto;'}).buildElement()
       .buildElement()
@@ -741,18 +768,24 @@ function buildOverlayMain() {
           // .addButton({'id': 'bm-button-teleport', 'className': 'bm-help', 'textContent': '✈'}).buildElement()
           // .addButton({'id': 'bm-button-favorite', 'className': 'bm-help', 'innerHTML': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><polygon points="10,2 12,7.5 18,7.5 13.5,11.5 15.5,18 10,14 4.5,18 6.5,11.5 2,7.5 8,7.5" fill="white"></polygon></svg>'}).buildElement()
           // .addButton({'id': 'bm-button-templates', 'className': 'bm-help', 'innerHTML': '🖌'}).buildElement()
-          .addButton({'id': 'bm-button-convert', 'className': 'bm-help', 'innerHTML': '🎨', 'title': 'Template Color Converter'}, 
-            (instance, button) => {
-            button.addEventListener('click', () => {
-              window.open('https://pepoafonso.github.io/color_converter_wplace/', '_blank', 'noopener noreferrer');
-            });
-          }).buildElement()
-          .addButton({'id': 'bm-button-website', 'className': 'bm-help', 'innerHTML': '🌐', 'title': 'Official Blue Marble Website'}, 
-            (instance, button) => {
-            button.addEventListener('click', () => {
-              window.open('https://bluemarble.lol/', '_blank', 'noopener noreferrer');
-            });
-          }).buildElement()
+          .addTooltip()
+            .addTooltipContent({'textContent': 'Template Color Converter'}).buildElement()
+            .addButton({'id': 'bm-button-convert', 'className': 'bm-help', 'innerHTML': '🎨'}, 
+              (instance, button) => {
+              button.addEventListener('click', () => {
+                window.open('https://pepoafonso.github.io/color_converter_wplace/', '_blank', 'noopener noreferrer');
+              });
+            }).buildElement()
+          .buildElement()
+          .addTooltip()
+            .addTooltipContent({'textContent': 'Official Blue Marble Website'}).buildElement()
+            .addButton({'id': 'bm-button-website', 'className': 'bm-help', 'innerHTML': '🌐'}, 
+              (instance, button) => {
+              button.addEventListener('click', () => {
+                window.open('https://bluemarble.lol/', '_blank', 'noopener noreferrer');
+              });
+            }).buildElement()
+          .buildElement()
         .buildElement()
         .addSmall({'innerHTML': 'Made by SwingTheVine<br>Modified by Sonyo<br>Art by <a href="https://camomille1411en.carrd.co/" target="_blank">camomille1411</a>', 'style': 'margin-top: auto; text-align: right;'}).buildElement()
       .buildElement()
@@ -822,6 +855,29 @@ function buildOverlayMain() {
         persistPalette();
       });
 
+      const paint = document.createElement('button');
+      paint.classList.add('bm-help');
+      paint.classList.add('bm-paint-button');
+      paint.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" style="width: 80%; margin: 0 auto;"><path d="M240-120q-45 0-89-22t-71-58q26 0 53-20.5t27-59.5q0-50 35-85t85-35q50 0 85 35t35 85q0 66-47 113t-113 47Zm230-240L360-470l358-358q11-11 27.5-11.5T774-828l54 54q12 12 12 28t-12 28L470-360Z"></path></svg>'
+      if (rgb === 'other')
+        paint.style.visibility = 'hidden';
+      paint.addEventListener('click', () => {
+        document.getElementsByClassName('btn btn-primary btn-lg sm:btn-xl relative z-30')[0]?.click();
+        setTimeout(() => {
+          const container = document.getElementsByClassName('mb-4 mt-3')[0].firstElementChild;
+          for (const div of container.children) {
+            const button = div.firstElementChild;
+            const color = button.style.background.slice(4, -1).replaceAll(' ', '');
+            if (color === rgb || rgb === '222,250,206' && color === '') {
+              button.click();
+              overlayMain.handleDisplayStatus(`Selected ${rgb === '222,250,206' ? 'transparent' : rgb}`);
+              return;
+            }
+          }
+          overlayMain.handleDisplayStatus(`Can't select' ${rgb}`);
+        });
+      });
+
       swatch.addEventListener('click', e => {
         const t = templateManager.templatesArray[0];
         if (!t?.colorPalette) { return; }
@@ -834,6 +890,7 @@ function buildOverlayMain() {
 
       row.appendChild(toggle);
       row.appendChild(swatch);
+      row.appendChild(paint);
       row.appendChild(label);
       listContainer.appendChild(row);
     }

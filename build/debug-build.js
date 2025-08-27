@@ -40,7 +40,7 @@ await esbuild.build({
 });
 
 // Inject css into the banner
-metaContent += `document.head.appendChild(document.createElement('style')).innerHTML = \`${fs.readFileSync('dist/CamoMarble.user.css', 'utf8').replace('\n', '')}\`;\r\n`;
+metaContent += `GM_addStyle(\`${fs.readFileSync('dist/CamoMarble.user.css', 'utf8').replace('\n', '')}\`);\r\n`;
 
 // Compiles the JS files
 await esbuild.build({
@@ -60,9 +60,9 @@ await esbuild.build({
 
 // Correct inconsistent end of lines
 fs.writeFileSync(
-    'dist/CamoMarble.user.js',
+  'dist/CamoMarble.user.js',
   fs.readFileSync('dist/CamoMarble.user.js', 'utf8').replaceAll('\r\n', '\n').replaceAll('\n', '\r\n'),
-    'utf8'
+  'utf8'
 );
 
 console.log(`${consoleStyle.GREEN + consoleStyle.BOLD + consoleStyle.UNDERLINE}Building complete!${consoleStyle.RESET}`);

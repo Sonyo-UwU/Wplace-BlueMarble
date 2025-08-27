@@ -159,6 +159,13 @@ div#bm-overlay, div#bm-overlay-telemetry {
   fill: #111;
 }
 
+/* Paint buttons */
+.bm-paint-button {
+  margin-top: 0;
+  width: 1.1em;
+  height: 1.1em;
+}
+
 /* Container for action buttons, that is inside the action button container */
 div:has(> #bm-button-teleport) {
   display: flex;
@@ -258,6 +265,11 @@ input[type="file"][id*="template"] {
 /* Underline on hover */
 #bm-overlay a:hover {
   text-decoration: underline;
+}
+
+/* All tooltip-content elements */
+#bm-overlay .tooltip-content {
+    font-size: small;
 }
 
 /* The elements that need spacing from each-other */
