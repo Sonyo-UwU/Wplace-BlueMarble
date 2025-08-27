@@ -270,6 +270,7 @@ input[type="file"][id*="template"] {
 /* All tooltip-content elements */
 #bm-overlay .tooltip-content {
     font-size: small;
+    background-color: #30100d;
 }
 
 /* The elements that need spacing from each-other */
