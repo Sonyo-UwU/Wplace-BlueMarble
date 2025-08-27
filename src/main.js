@@ -856,6 +856,29 @@ function buildOverlayMain() {
         persistPalette();
       });
 
+      const paint = document.createElement('button');
+      paint.classList.add('bm-help');
+      paint.classList.add('bm-paint-button');
+      paint.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" style="width: 80%; margin: 0 auto;"><path d="M240-120q-45 0-89-22t-71-58q26 0 53-20.5t27-59.5q0-50 35-85t85-35q50 0 85 35t35 85q0 66-47 113t-113 47Zm230-240L360-470l358-358q11-11 27.5-11.5T774-828l54 54q12 12 12 28t-12 28L470-360Z"></path></svg>'
+      if (rgb === 'other')
+        paint.style.visibility = 'hidden';
+      paint.addEventListener('click', () => {
+        document.getElementsByClassName('btn btn-primary btn-lg sm:btn-xl relative z-30')[0]?.click();
+        setTimeout(() => {
+          const container = document.getElementsByClassName('mb-4 mt-3')[0].firstElementChild;
+          for (const div of container.children) {
+            const button = div.firstElementChild;
+            const color = button.style.background.slice(4, -1).replaceAll(' ', '');
+            if (color === rgb || rgb === '222,250,206' && color === '') {
+              button.click();
+              overlayMain.handleDisplayStatus(`Selected ${rgb === '222,250,206' ? 'transparent' : rgb}`);
+              return;
+            }
+          }
+          overlayMain.handleDisplayStatus(`Can't select' ${rgb}`);
+        });
+      });
+
       swatch.addEventListener('click', e => {
         const t = templateManager.templatesArray[0];
         if (!t?.colorPalette) { return; }
@@ -868,6 +891,7 @@ function buildOverlayMain() {
 
       row.appendChild(toggle);
       row.appendChild(swatch);
+      row.appendChild(paint);
       row.appendChild(label);
       listContainer.appendChild(row);
     }
