@@ -647,35 +647,48 @@ function buildOverlayMain() {
       // Color filter UI
       .addDiv({'id': 'bm-contain-colorfilter', 'style': 'border: 1px solid rgba(255,255,255,0.1); padding: 4px; border-radius: 4px; margin-top: 4px; display: none;'})
         .addDiv({'style': 'display: flex; gap: 6px; margin-bottom: 6px;'})
-          .addButton({'id': 'bm-button-colors-enable-all', 'textContent': 'Enable All'}, (instance, button) => {
-            button.onclick = () => {
-              const t = templateManager.templatesArray[0];
-              if (!t?.colorPalette) { return; }
-              Object.values(t.colorPalette).forEach(v => v.enabled = true);
-              [...document.getElementById('bm-colorfilter-list').children].forEach(c => c.firstElementChild.checked = true);
-              instance.handleDisplayStatus('Enabled all colors');
-              persistPalette();
-            };
-          }).buildElement()
-          .addButton({'id': 'bm-button-colors-disable-all', 'textContent': 'Disable All'}, (instance, button) => {
-            button.onclick = () => {
-              const t = templateManager.templatesArray[0];
-              if (!t?.colorPalette) { return; }
-              Object.values(t.colorPalette).forEach(v => v.enabled = false);
-              [...document.getElementById('bm-colorfilter-list').children].forEach(c => c.firstElementChild.checked = false);
-              instance.handleDisplayStatus('Disabled all colors');
-              persistPalette();
-            };
-          }).buildElement()
+          .addTooltip()
+            .addTooltipContent({'textContent': 'Enable all colors'})
+              .addKbd({'textContent': 'A'}).buildElement()
+            .buildElement()
+            .addButton({'id': 'bm-button-colors-enable-all', 'textContent': 'Enable All'}, (instance, button) => {
+              button.onclick = () => {
+                const t = templateManager.templatesArray[0];
+                if (!t?.colorPalette) { return; }
+                Object.values(t.colorPalette).forEach(v => v.enabled = true);
+                [...document.getElementById('bm-colorfilter-list').children].forEach(c => c.firstElementChild.checked = true);
+                instance.handleDisplayStatus('Enabled all colors');
+                persistPalette();
+              };
+            }).buildElement()
+          .buildElement()
+          .addTooltip()
+            .addTooltipContent({'textContent': 'Disable all colors'})
+              .addKbd({'textContent': 'D'}).buildElement()
+            .buildElement()
+            .addButton({'id': 'bm-button-colors-disable-all', 'textContent': 'Disable All'}, (instance, button) => {
+              button.onclick = () => {
+                const t = templateManager.templatesArray[0];
+                if (!t?.colorPalette) { return; }
+                Object.values(t.colorPalette).forEach(v => v.enabled = false);
+                [...document.getElementById('bm-colorfilter-list').children].forEach(c => c.firstElementChild.checked = false);
+                instance.handleDisplayStatus('Disabled all colors');
+                persistPalette();
+              };
+            }).buildElement()
+          .buildElement()
         .buildElement()
         .addDiv({'style': 'padding-bottom: 4px;'})
-          .addButton({'className': 'bm-help', 'title': 'Clear', 'style': 'display: inline-flex; background-color: #144eb9; border-radius: 1em; vertical-align: middle;', 'innerHTML': '<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 50 50" style="width: 80%;margin: 0 auto;"><path d="M 21 3 C 11.601563 3 4 10.601563 4 20 C 4 29.398438 11.601563 37 21 37 C 24.355469 37 27.460938 36.015625 30.09375 34.34375 L 42.375 46.625 L 46.625 42.375 L 34.5 30.28125 C 36.679688 27.421875 38 23.878906 38 20 C 38 10.601563 30.398438 3 21 3 Z M 21 7 C 28.199219 7 34 12.800781 34 20 C 34 27.199219 28.199219 33 21 33 C 13.800781 33 8 27.199219 8 20 C 8 12.800781 13.800781 7 21 7 Z"></path></svg>'}, (instance, button) => {
-            button.addEventListener('click', () => {
-              const searchBar = document.getElementById('color-search');
-              searchBar.value = '';
-              searchBar.dispatchEvent(new Event('input'));
-            });
-          }).buildElement()
+          .addTooltip()
+            .addTooltipContent({'textContent': 'Clear'}).buildElement()
+            .addButton({'className': 'bm-help', 'style': 'display: inline-flex; background-color: #144eb9; border-radius: 1em; vertical-align: middle;', 'innerHTML': '<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 50 50" style="width: 80%;margin: 0 auto;"><path d="M 21 3 C 11.601563 3 4 10.601563 4 20 C 4 29.398438 11.601563 37 21 37 C 24.355469 37 27.460938 36.015625 30.09375 34.34375 L 42.375 46.625 L 46.625 42.375 L 34.5 30.28125 C 36.679688 27.421875 38 23.878906 38 20 C 38 10.601563 30.398438 3 21 3 Z M 21 7 C 28.199219 7 34 12.800781 34 20 C 34 27.199219 28.199219 33 21 33 C 13.800781 33 8 27.199219 8 20 C 8 12.800781 13.800781 7 21 7 Z"></path></svg>'}, (instance, button) => {
+              button.addEventListener('click', () => {
+                const searchBar = document.getElementById('color-search');
+                searchBar.value = '';
+                searchBar.dispatchEvent(new Event('input'));
+              });
+            }).buildElement()
+          .buildElement()
           .addInput({ 'id': 'color-search', 'type': 'text', placeholder: 'Search', 'style': 'background-color: #0003; padding: 0 .5ch; font-size: small; width: calc(100% - 2ch - 48px); margin-left: 1ch;  margin-right: 1ch;'}, (instance, input) => {
             input.addEventListener('input', e => {
               const listContainer = document.getElementById('bm-colorfilter-list');
@@ -698,9 +711,14 @@ function buildOverlayMain() {
               e.stopPropagation();
             }, { capture: true });
           }).buildElement()
-          .addButton({'className': 'bm-help', 'title': 'Enable currently selected color (v)', 'style': 'display: inline-flex; background-color: #144eb9; border-radius: 1em; vertical-align: middle;', 'innerHTML': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" style="margin: 0 auto;width: 80%;"><path d="M120-120v-190l358-358-58-56 58-56 76 76 124-124q5-5 12.5-8t15.5-3q8 0 15 3t13 8l94 94q5 6 8 13t3 15q0 8-3 15.5t-8 12.5L705-555l76 78-57 57-56-58-358 358H120Zm80-80h78l332-334-76-76-334 332v78Zm447-410 96-96-37-37-96 96 37 37Zm0 0-37-37 37 37Z"></path></svg>'}, (instance, button) => {
-            button.addEventListener('click', enableSelectedColor);
-          }).buildElement()
+          .addTooltip()
+            .addTooltipContent({'textContent': 'Enable selected'})
+              .addKbd({'textContent': 'V'}).buildElement()
+            .buildElement()
+            .addButton({'className': 'bm-help', 'style': 'display: inline-flex; background-color: #144eb9; border-radius: 1em; vertical-align: middle;', 'innerHTML': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" style="margin: 0 auto;width: 80%;"><path d="M120-120v-190l358-358-58-56 58-56 76 76 124-124q5-5 12.5-8t15.5-3q8 0 15 3t13 8l94 94q5 6 8 13t3 15q0 8-3 15.5t-8 12.5L705-555l76 78-57 57-56-58-358 358H120Zm80-80h78l332-334-76-76-334 332v78Zm447-410 96-96-37-37-96 96 37 37Zm0 0-37-37 37 37Z"></path></svg>'}, (instance, button) => {
+              button.addEventListener('click', enableSelectedColor);
+            }).buildElement()
+          .buildElement()
         .buildElement()
         .addDiv({'id': 'bm-colorfilter-list', 'style': 'max-height: 120px; overflow: auto;'}).buildElement()
       .buildElement()
@@ -751,18 +769,24 @@ function buildOverlayMain() {
           // .addButton({'id': 'bm-button-teleport', 'className': 'bm-help', 'textContent': '✈'}).buildElement()
           // .addButton({'id': 'bm-button-favorite', 'className': 'bm-help', 'innerHTML': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><polygon points="10,2 12,7.5 18,7.5 13.5,11.5 15.5,18 10,14 4.5,18 6.5,11.5 2,7.5 8,7.5" fill="white"></polygon></svg>'}).buildElement()
           // .addButton({'id': 'bm-button-templates', 'className': 'bm-help', 'innerHTML': '🖌'}).buildElement()
-          .addButton({'id': 'bm-button-convert', 'className': 'bm-help', 'innerHTML': '🎨', 'title': 'Template Color Converter'}, 
-            (instance, button) => {
-            button.addEventListener('click', () => {
-              window.open('https://pepoafonso.github.io/color_converter_wplace/', '_blank', 'noopener noreferrer');
-            });
-          }).buildElement()
-          .addButton({'id': 'bm-button-website', 'className': 'bm-help', 'innerHTML': '🌐', 'title': 'Official Blue Marble Website'}, 
-            (instance, button) => {
-            button.addEventListener('click', () => {
-              window.open('https://bluemarble.lol/', '_blank', 'noopener noreferrer');
-            });
-          }).buildElement()
+          .addTooltip()
+            .addTooltipContent({'textContent': 'Template Color Converter'}).buildElement()
+            .addButton({'id': 'bm-button-convert', 'className': 'bm-help', 'innerHTML': '🎨'}, 
+              (instance, button) => {
+              button.addEventListener('click', () => {
+                window.open('https://pepoafonso.github.io/color_converter_wplace/', '_blank', 'noopener noreferrer');
+              });
+            }).buildElement()
+          .buildElement()
+          .addTooltip()
+            .addTooltipContent({'textContent': 'Official Blue Marble Website'}).buildElement()
+            .addButton({'id': 'bm-button-website', 'className': 'bm-help', 'innerHTML': '🌐'}, 
+              (instance, button) => {
+              button.addEventListener('click', () => {
+                window.open('https://bluemarble.lol/', '_blank', 'noopener noreferrer');
+              });
+            }).buildElement()
+          .buildElement()
         .buildElement()
         .addSmall({'textContent': 'Made by SwingTheVine', 'style': 'margin-top: auto;'}).buildElement()
       .buildElement()
