@@ -75,14 +75,19 @@
     <li>Search bar for the color filter list</li>
     <li>Click on the color squares to enable only that color</li>
     <li>Button to only enable the currently selected color</li>
+    <li>Buttons to select color on the filter list</li>
+    <li>Disable and enable all colors keyboard shortcuts</li>
     <li>Display pixels painted percentage in the output status</li>
   </ul>
   Minor features:
   <ul>
     <li>Show user info without waiting for a pixel placement</li>
+    <li>Fancier tooltips</li>
     <li>Don't display color id and star in the filter list</li>
     <li>Made output status box slightly taller</li>
     <li>Save color filtering changes</li>
+    <li>Save coords when pasting</li>
+    <li>Correctly load saved coords</li>
     <li>Fix the output status showing 1 required pixel for the template</li>
   </ul>
 
