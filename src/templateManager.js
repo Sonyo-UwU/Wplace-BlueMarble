@@ -124,9 +124,12 @@ export default class TemplateManager {
    * @since 0.65.77
    */
   async createTemplate(blob, name, coords) {
-
     // Creates the JSON object if it does not already exist
-    if (!this.templatesJSON) {this.templatesJSON = await this.createJSON(); console.log(`Creating JSON...`);}
+    //if (!this.templatesJSON) {this.templatesJSON = await this.createJSON(); console.log(`Creating JSON...`);}
+
+    // Recreate the JSON because multiple templates is not supported
+    this.templatesJSON = this.createJSON();
+    console.log(`Creating JSON...`);
 
     this.overlay.handleDisplayStatus(`Creating template at ${coords.join(', ')}...`);
 
@@ -536,7 +539,7 @@ export default class TemplateManager {
     console.log(json);
 
     // If the passed in JSON is a Blue Marble template object...
-    if (json?.whoami == 'BlueMarble') {
+    if (json?.whoami == this.name.replace(' ', '')) {
       this.#parseBlueMarble(json); // ...parse the template object as Blue Marble
     }
   }
