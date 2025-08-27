@@ -612,27 +612,24 @@ function buildOverlayMain() {
             for (let i = 0; i < coords.length; i++) { 
               coords[i].value = splitText[i]; //add the split vales
             }
+            persistCoords();
 
             event.preventDefault(); //prevent the pasting of the original paste that would overide the split value
           })
-          const handler = () => persistCoords();
-          input.addEventListener('input', handler);
-          input.addEventListener('change', handler);
+          input.addEventListener('input', persistCoords);
+          input.addEventListener('change', persistCoords);
         }).buildElement()
         .addInput({'type': 'number', 'id': 'bm-input-ty', 'placeholder': 'Tl Y', 'min': 0, 'max': 2047, 'step': 1, 'required': true, 'value': (savedCoords.ty ?? '')}, (instance, input) => {
-          const handler = () => persistCoords();
-          input.addEventListener('input', handler);
-          input.addEventListener('change', handler);
+          input.addEventListener('input', persistCoords);
+          input.addEventListener('change', persistCoords);
         }).buildElement()
         .addInput({'type': 'number', 'id': 'bm-input-px', 'placeholder': 'Px X', 'min': 0, 'max': 2047, 'step': 1, 'required': true, 'value': (savedCoords.px ?? '')}, (instance, input) => {
-          const handler = () => persistCoords();
-          input.addEventListener('input', handler);
-          input.addEventListener('change', handler);
+          input.addEventListener('input', persistCoords);
+          input.addEventListener('change', persistCoords);
         }).buildElement()
         .addInput({'type': 'number', 'id': 'bm-input-py', 'placeholder': 'Px Y', 'min': 0, 'max': 2047, 'step': 1, 'required': true, 'value': (savedCoords.py ?? '')}, (instance, input) => {
-          const handler = () => persistCoords();
-          input.addEventListener('input', handler);
-          input.addEventListener('change', handler);
+          input.addEventListener('input', persistCoords);
+          input.addEventListener('change', persistCoords);
         }).buildElement()
       .buildElement()
       // Color filter UI
