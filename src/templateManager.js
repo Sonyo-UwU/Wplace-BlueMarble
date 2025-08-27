@@ -125,11 +125,7 @@ export default class TemplateManager {
    */
   async createTemplate(blob, name, coords) {
     // Creates the JSON object if it does not already exist
-    //if (!this.templatesJSON) {this.templatesJSON = await this.createJSON(); console.log(`Creating JSON...`);}
-
-    // Recreate the JSON because multiple templates is not supported
-    this.templatesJSON = this.createJSON();
-    console.log(`Creating JSON...`);
+    if (!this.templatesJSON) {this.templatesJSON = await this.createJSON(); console.log(`Creating JSON...`);}
 
     this.overlay.handleDisplayStatus(`Creating template at ${coords.join(', ')}...`);
 
