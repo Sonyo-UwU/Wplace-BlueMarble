@@ -133,7 +133,7 @@ if (mapCSS) {
 }
 
 // Inject css into the banner
-metaContent += `document.head.appendChild(document.createElement('style')).innerHTML = \`${fs.readFileSync('dist/BlueMarble.user.css', 'utf8').replace('\n', '')}\`;`;
+metaContent += `GM_addStyle(\`${fs.readFileSync('dist/BlueMarble.user.css', 'utf8').replace('\n', '')}\`);`;
 
 // Adds the banner
 fs.writeFileSync(

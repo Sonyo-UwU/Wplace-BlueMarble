@@ -40,7 +40,7 @@ await esbuild.build({
 });
 
 // Inject css into the banner
-metaContent += `document.head.appendChild(document.createElement('style')).innerHTML = \`${fs.readFileSync('dist/BlueMarble.user.css', 'utf8').replace('\n', '')}\`;\r\n`;
+metaContent += `GM_addStyle(\`${fs.readFileSync('dist/BlueMarble.user.css', 'utf8').replace('\n', '')}\`);\r\n`;
 
 // Compiles the JS files
 await esbuild.build({

@@ -108,7 +108,7 @@ export default class TemplateManager {
    * @returns {{ whoami: string, scriptVersion: string, schemaVersion: string, templates: Object }} The JSON object
    * @since 0.65.4
    */
-  async createJSON() {
+  createJSON() {
     return {
       "whoami": this.name.replace(' ', ''), // Name of userscript without spaces
       "scriptVersion": this.version, // Version of userscript
@@ -126,7 +126,11 @@ export default class TemplateManager {
   async createTemplate(blob, name, coords) {
 
     // Creates the JSON object if it does not already exist
-    if (!this.templatesJSON) {this.templatesJSON = await this.createJSON(); console.log(`Creating JSON...`);}
+    //if (!this.templatesJSON) {this.templatesJSON = this.createJSON(); console.log(`Creating JSON...`);}
+
+    // Recreate the JSON because multiple templates is not supported
+    this.templatesJSON = this.createJSON();
+    console.log(`Creating JSON...`);
 
     this.overlay.handleDisplayStatus(`Creating template at ${coords.join(', ')}...`);
 
@@ -189,7 +193,7 @@ export default class TemplateManager {
    * @since 0.72.7
    */
   async #storeTemplates() {
-    GM.setValue('bmTemplates', JSON.stringify(this.templatesJSON));
+    await GM.setValue('bmTemplates', JSON.stringify(this.templatesJSON));
   }
 
   /** Deletes a template from the JSON object.
@@ -204,7 +208,7 @@ export default class TemplateManager {
   async disableTemplate() {
 
     // Creates the JSON object if it does not already exist
-    if (!this.templatesJSON) {this.templatesJSON = await this.createJSON(); console.log(`Creating JSON...`);}
+    if (!this.templatesJSON) {this.templatesJSON = this.createJSON(); console.log(`Creating JSON...`);}
 
 
   }
@@ -546,7 +550,7 @@ export default class TemplateManager {
    * @since 0.72.13
    */
   async #parseBlueMarble(json) {
-    if (!this.templatesJSON) {this.templatesJSON = await this.createJSON(); console.log(`Creating JSON...`);}
+    if (!this.templatesJSON) {this.templatesJSON = this.createJSON(); console.log(`Creating JSON...`);}
 
     console.log(`Parsing BlueMarble...`);
 
