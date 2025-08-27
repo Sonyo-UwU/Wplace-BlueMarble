@@ -788,7 +788,7 @@ function buildOverlayMain() {
             }).buildElement()
           .buildElement()
         .buildElement()
-        .addSmall({'textContent': 'Made by SwingTheVine', 'style': 'margin-top: auto;'}).buildElement()
+        .addSmall({'innerHTML': 'Made by SwingTheVine<br>Modified by Sonyo', 'style': 'margin-top: auto; text-align: right;'}).buildElement()
       .buildElement()
     .buildElement()
   .buildOverlay(document.body);
