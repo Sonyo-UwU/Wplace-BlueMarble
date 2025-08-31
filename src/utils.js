@@ -132,7 +132,7 @@ export function base64ToUint8(base64) {
  * @since 0.74.0
  */
 export function selectAllCoordinateInputs(document) {
-  coords = [];
+  const coords = [];
 
   coords.push(document.querySelector('#bm-input-tx'));
   coords.push(document.querySelector('#bm-input-ty'));
@@ -140,6 +140,23 @@ export function selectAllCoordinateInputs(document) {
   coords.push(document.querySelector('#bm-input-py'));
 
   return coords;
+}
+
+/** Determines if two colors are the same or close enough to be considered the same.
+ * @param {number} r1 - The red value of the first color
+ * @param {number} g1 - The green value of the first color
+ * @param {number} b1 - The blue value of the first color
+ * @param {number} r2 - The red value of the second color
+ * @param {number} g2 - The green value of the second color
+ * @param {number} b2 - The blue value of the second color
+ * @returns {boolean} - Whether the two colors are considered the same
+ * @since 0.65.77
+ */
+export function isCloseEnough(r1, g1, b1, r2, g2, b2) {
+  const dr = r1 - r2;
+  const dg = g1 - g2;
+  const db = b1 - b2;
+  return dr * dr + dg * dg + db * db <= 100;
 }
 
 /** The color palette used by wplace.live

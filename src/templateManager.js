@@ -1,5 +1,5 @@
 import Template from "./Template";
-import { base64ToUint8, numberToEncoded } from "./utils";
+import { base64ToUint8, numberToEncoded, isCloseEnough } from "./utils";
 
 /** Manages the template system.
  * This class handles all external requests for template modification, creation, and analysis.
@@ -213,23 +213,6 @@ export default class TemplateManager {
 
   }
 
-  /** Determines if two colors are the same or close enough to be considered the same.
-   * @param {number} r1 - The red value of the first color
-   * @param {number} g1 - The green value of the first color
-   * @param {number} b1 - The blue value of the first color
-   * @param {number} r2 - The red value of the second color
-   * @param {number} g2 - The green value of the second color
-   * @param {number} b2 - The blue value of the second color
-   * @returns {boolean} - Whether the two colors are considered the same
-   * @since 0.65.77
-   */
-  #isCloseEnough(r1, g1, b1, r2, g2, b2) {
-    const dr = r1 - r2;
-    const dg = g1 - g2;
-    const db = b1 - b2;
-    return dr * dr + dg * dg + db * db <= 100;
-  }
-
   /** Draws all templates on the specified tile.
    * This method handles the rendering of template overlays on individual tiles.
    * @param {File} tileBlob - The pixels that are placed on a tile
@@ -423,7 +406,7 @@ export default class TemplateManager {
                 // Unpainted -> neither painted nor wrong
 
                 // ELSE IF the pixel matches the template center pixel color
-              } else if (this.#isCloseEnough(realPixelRed, realPixelCenterGreen, realPixelCenterBlue, templatePixelCenterRed, templatePixelCenterGreen, templatePixelCenterBlue)) {
+              } else if (isCloseEnough(realPixelRed, realPixelCenterGreen, realPixelCenterBlue, templatePixelCenterRed, templatePixelCenterGreen, templatePixelCenterBlue)) {
                 paintedCount++; // ...the pixel is painted correctly
               } else {
                 wrongCount++; // ...the pixel is NOT painted correctly
