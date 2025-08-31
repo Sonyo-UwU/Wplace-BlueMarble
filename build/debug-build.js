@@ -12,7 +12,7 @@ import fs from 'fs';
 import { execSync } from 'child_process';
 import { consoleStyle } from './utils.js';
 
-console.log(`${consoleStyle.BLUE}Starting build...${consoleStyle.RESET}`);
+console.log(`${consoleStyle.BLUE}Starting debug build...${consoleStyle.RESET}`);
 
 // Tries to bump the version
 try {
