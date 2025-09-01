@@ -1,4 +1,4 @@
-import { uint8ToBase64, isCloseEnough, colorpalette } from "./utils";
+import { uint8ToBase64, isCloseEnough, colorpalette, getKeyForColor } from "./utils";
 
 /** An instance of a template.
  * Handles all mathematics, manipulation, and analysis regarding a single template.
@@ -128,18 +128,7 @@ export default class Template {
           if (a === 0) { continue; } // Ignored transparent pixel
           if (r === 222 && g === 250 && b === 206) { deface++; }
 
-          // Determine key
-          let key = 'other';
-          for (const {rgb} of colorpalette) {
-            if (isCloseEnough(...rgb, r, g, b)) {
-              key = `${rgb[0]},${rgb[1]},${rgb[2]}`;
-              if (this.allowedColorsSet.has(key))
-                break;
-
-              key = 'other';
-            }
-          }
-
+          const key = getKeyForColor(r, g, b, this.allowedColorsSet);
           //if (!this.allowedColorsSet.has(key)) { continue; } // Skip non-palette colors (but #deface added to allowed)
           required++;
           paletteMap.set(key, (paletteMap.get(key) || 0) + 1);

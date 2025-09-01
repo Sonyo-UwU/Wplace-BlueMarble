@@ -1,5 +1,5 @@
 import Template from "./Template";
-import { base64ToUint8, numberToEncoded, isCloseEnough } from "./utils";
+import { base64ToUint8, numberToEncoded, isCloseEnough, getKeyForColor } from "./utils";
 
 /** Manages the template system.
  * This class handles all external requests for template modification, creation, and analysis.
@@ -460,7 +460,7 @@ export default class TemplateManager {
 
               if (a < 1) { continue; }
 
-              let key = activeTemplate.allowedColorsSet.has(`${r},${g},${b}`) ? `${r},${g},${b}` : 'other';
+              const key = getKeyForColor(r, g, b, activeTemplate?.allowedColorsSet);
 
               // Hide if color is not in allowed palette or explicitly disabled
               const inWplacePalette = activeTemplate?.allowedColorsSet ? activeTemplate.allowedColorsSet.has(key) : true;
