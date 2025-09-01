@@ -159,6 +159,28 @@ export function isCloseEnough(r1, g1, b1, r2, g2, b2) {
   return dr * dr + dg * dg + db * db <= 100;
 }
 
+/** Gets the key associated with a color, or "other" if no key is found.
+ * @param {number} r - The red value of the color
+ * @param {number} g - The green value of the color
+ * @param {number} b - The blue value of the color
+ * @param {Set<string>} allowedColorsSet - The allowed color keys
+ * @returns {string} - The associated key
+ * @since 0.65.77
+ */
+export function getKeyForColor(r, g, b, allowedColorsSet) {
+  let key = 'other';
+  for (const {rgb} of colorpalette) {
+    if (isCloseEnough(...rgb, r, g, b)) {
+      key = `${rgb[0]},${rgb[1]},${rgb[2]}`;
+      if (allowedColorsSet?.has(key))
+        break;
+
+      key = 'other';
+    }
+  }
+  return key;
+}
+
 /** The color palette used by wplace.live
  * @since 0.78.0
  * @examples
