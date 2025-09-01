@@ -78,6 +78,7 @@
     <li>Buttons to select color on the filter list</li>
     <li>Disable and enable all colors keyboard shortcuts</li>
     <li>Display pixels painted percentage in the output status</li>
+    <li>Pixels close to but not exactly a palette color are considered being of that color</li>
   </ul>
   Minor features:
   <ul>
@@ -90,11 +91,9 @@
     <li>Correctly load saved coords</li>
     <li>Fix the output status showing 1 required pixel for the template</li>
   </ul>
-
   <h3>How to install</h3>
   Go to <a href="https://github.com/Sonyo-UwU/Wplace-BlueMarble/releases/latest">the latest release</a> and click on <code>BlueMarble.user.js</code> under assets.<br>
   Below is the original Blue Marble readme, so following these instructions will install the unmodified version.
-
   <h3>Theme</h3>
   This branch has a custom theme made for <a href="https://camomille1411en.carrd.co/">camomille1411</a>.
 </p>
