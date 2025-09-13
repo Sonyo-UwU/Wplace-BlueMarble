@@ -61,7 +61,8 @@ export default class TemplateManager {
     this.templatesArray = []; // All Template instnaces currently loaded (Template)
     this.templatesJSON = null; // All templates currently loaded (JSON)
     this.templatesShouldBeDrawn = true; // Should ALL templates be drawn to the canvas?
-    this.tileProgress = new Map(); // Tracks per-tile progress stats {painted, required, wrong}
+    this.tileProgress = new Map(); // Tracks per-tile progress stats {painted, required, wrong, unpainted}
+    this.firstWrongPixel = null;
   }
 
   /** Retrieves the pixel art canvas.
@@ -284,6 +285,7 @@ export default class TemplateManager {
     let paintedCount = 0;
     let wrongCount = 0;
     let requiredCount = 0;
+    let unpaintedCount = 0;
     
     const tileBitmap = await createImageBitmap(tileBlob);
 
@@ -403,12 +405,20 @@ export default class TemplateManager {
               // IF the alpha of the pixel is less than 64...
               if (realPixelCenterAlpha < 64) {
                 // Unpainted -> neither painted nor wrong
-
+                unpaintedCount++;
+                this.firstWrongPixel ??= {
+                    x: Number(template.pixelCoords?.[0] || 0) + Math.floor(x / this.drawMult),
+                    y: Number(template.pixelCoords?.[1] || 0) + Math.floor(y / this.drawMult)
+                  };
                 // ELSE IF the pixel matches the template center pixel color
               } else if (isCloseEnough(realPixelRed, realPixelCenterGreen, realPixelCenterBlue, templatePixelCenterRed, templatePixelCenterGreen, templatePixelCenterBlue)) {
                 paintedCount++; // ...the pixel is painted correctly
               } else {
                 wrongCount++; // ...the pixel is NOT painted correctly
+                this.firstWrongPixel ??= {
+                  x: Number(template.pixelCoords?.[0] || 0) + Math.floor(x / this.drawMult),
+                  y: Number(template.pixelCoords?.[1] || 0) + Math.floor(y / this.drawMult)
+                };
               }
             }
           }
@@ -497,16 +507,19 @@ export default class TemplateManager {
         painted: paintedCount,
         required: requiredCount,
         wrong: wrongCount,
+        unpainted: unpaintedCount
       });
 
       // Aggregate painted/wrong across tiles we've processed
       let aggPainted = 0;
       let aggRequiredTiles = 0;
       let aggWrong = 0;
+      let aggUnpainted = 0;
       for (const stats of this.tileProgress.values()) {
         aggPainted += stats.painted || 0;
         aggRequiredTiles += stats.required || 0;
         aggWrong += stats.wrong || 0;
+        aggUnpainted += stats.unpainted || 0;
       }
 
       // Determine total required across all templates
@@ -518,10 +531,18 @@ export default class TemplateManager {
       // Turns numbers into formatted number strings. E.g., 1234 -> 1,234 OR 1.234 based on location of user
       const paintedStr = new Intl.NumberFormat().format(aggPainted);
       const requiredStr = new Intl.NumberFormat().format(totalRequired);
-      const wrongStr = new Intl.NumberFormat().format(totalRequired - aggPainted); // Used to be aggWrong, but that is bugged
+      //const wrongStr = new Intl.NumberFormat().format(totalRequired - aggPainted); // Used to be aggWrong, but that is bugged
+      const wrongStr = new Intl.NumberFormat().format(aggWrong);
+      const unpaintedStr = new Intl.NumberFormat().format(aggUnpainted);
+
+      let wrongPixelInfo = '';
+      if (totalRequired - aggPainted > 0 && this.firstWrongPixel) {
+        wrongPixelInfo = `First incorrect at (${this.firstWrongPixel.x}, ${this.firstWrongPixel.y})`;
+      }
 
       this.overlay.handleDisplayStatus(
-        `Displaying ${templateCount} template${templateCount == 1 ? '' : 's'}.\nPainted ${paintedStr} / ${requiredStr} (${Math.round(aggPainted / totalRequired * 1000) / 10}%) • Wrong ${wrongStr}`
+        //`Displaying ${templateCount} template${templateCount == 1 ? '' : 's'}.\nPainted ${paintedStr} / ${requiredStr} (${Math.round(aggPainted / totalRequired * 1000) / 10}%) • Wrong ${wrongStr}\n${wrongPixelInfo}`
+        `Painted ${paintedStr} / ${requiredStr} (${Math.round(aggPainted / totalRequired * 1000) / 10}%) • Wrong ${wrongStr} • Unpainted ${unpaintedStr}\n${wrongPixelInfo}`
       );
     } else {
       this.overlay.handleDisplayStatus(`Displaying ${templateCount} templates.`);
