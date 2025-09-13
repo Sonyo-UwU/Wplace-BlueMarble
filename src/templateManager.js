@@ -319,7 +319,7 @@ export default class TemplateManager {
       // honoring color enable/disable from the active template's palette
       if (tilePixels) {
         try {
-          
+
           const tempWidth = template.bitmap.width;
           const tempHeight = template.bitmap.height;
           const tempCanvas = new OffscreenCanvas(tempWidth, tempHeight);
@@ -359,6 +359,7 @@ export default class TemplateManager {
               // Handle template transparent pixel (alpha < 64): wrong if board has any site palette color here
               // If the alpha of the center pixel is less than 64...
               if (templatePixelCenterAlpha < 64) {
+                continue; // Just ignore this pixel
                 try {
                   const activeTemplate = this.templatesArray?.[0];
                   const tileIdx = (gy * drawSize + gx) * 4;
@@ -370,9 +371,10 @@ export default class TemplateManager {
                   const key = activeTemplate.allowedColorsSet.has(`${pr},${pg},${pb}`) ? `${pr},${pg},${pb}` : 'other';
 
                   const isSiteColor = activeTemplate?.allowedColorsSet ? activeTemplate.allowedColorsSet.has(key) : false;
-                  
+
                   // IF the alpha of the center pixel that is placed on the canvas is greater than or equal to 64, AND the pixel is a Wplace palette color, then it is incorrect.
                   if (pa >= 64 && isSiteColor) {
+                    debugger;
                     wrongCount++;
                   }
                 } catch (ignored) {}
@@ -500,6 +502,7 @@ export default class TemplateManager {
       }
     }
 
+    debugger;
     // Save per-tile stats and compute global aggregates across all processed tiles
     if (templateCount > 0) {
       const tileKey = tileCoords; // already padded string "xxxx,yyyy"
