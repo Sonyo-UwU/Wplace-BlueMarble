@@ -63,6 +63,7 @@ export default class TemplateManager {
     this.templatesShouldBeDrawn = true; // Should ALL templates be drawn to the canvas?
     this.tileProgress = new Map(); // Tracks per-tile progress stats {painted, required, wrong, unpainted}
     this.firstWrongPixel = null;
+    this.firstUnpaintedPixel = null;
   }
 
   /** Retrieves the pixel art canvas.
@@ -360,26 +361,26 @@ export default class TemplateManager {
               // If the alpha of the center pixel is less than 64...
               if (templatePixelCenterAlpha < 64) {
                 continue; // Just ignore this pixel
-                try {
-                  const activeTemplate = this.templatesArray?.[0];
-                  const tileIdx = (gy * drawSize + gx) * 4;
-                  const pr = tilePixels[tileIdx];
-                  const pg = tilePixels[tileIdx + 1];
-                  const pb = tilePixels[tileIdx + 2];
-                  const pa = tilePixels[tileIdx + 3];
-
-                  const key = activeTemplate.allowedColorsSet.has(`${pr},${pg},${pb}`) ? `${pr},${pg},${pb}` : 'other';
-
-                  const isSiteColor = activeTemplate?.allowedColorsSet ? activeTemplate.allowedColorsSet.has(key) : false;
-
-                  // IF the alpha of the center pixel that is placed on the canvas is greater than or equal to 64, AND the pixel is a Wplace palette color, then it is incorrect.
-                  if (pa >= 64 && isSiteColor) {
-                    debugger;
-                    wrongCount++;
-                  }
-                } catch (ignored) {}
-
-                continue; // Continue to the next pixel
+                //try {
+                //  const activeTemplate = this.templatesArray?.[0];
+                //  const tileIdx = (gy * drawSize + gx) * 4;
+                //  const pr = tilePixels[tileIdx];
+                //  const pg = tilePixels[tileIdx + 1];
+                //  const pb = tilePixels[tileIdx + 2];
+                //  const pa = tilePixels[tileIdx + 3];
+                //
+                //  const key = activeTemplate.allowedColorsSet.has(`${pr},${pg},${pb}`) ? `${pr},${pg},${pb}` : 'other';
+                //
+                //  const isSiteColor = activeTemplate?.allowedColorsSet ? activeTemplate.allowedColorsSet.has(key) : false;
+                //
+                //  // IF the alpha of the center pixel that is placed on the canvas is greater than or equal to 64, AND the pixel is a Wplace palette color, then it is incorrect.
+                //  if (pa >= 64 && isSiteColor) {
+                //    debugger;
+                //    wrongCount++;
+                //  }
+                //} catch (ignored) {}
+                //
+                //continue; // Continue to the next pixel
               }
 
               // Treat #deface as Transparent palette color (required and paintable)
@@ -408,19 +409,23 @@ export default class TemplateManager {
               if (realPixelCenterAlpha < 64) {
                 // Unpainted -> neither painted nor wrong
                 unpaintedCount++;
-                this.firstWrongPixel ??= {
+                if (unpaintedCount === 1) {
+                  this.firstUnpaintedPixel = {
                     x: Number(template.pixelCoords?.[0] || 0) + Math.floor(x / this.drawMult),
                     y: Number(template.pixelCoords?.[1] || 0) + Math.floor(y / this.drawMult)
                   };
+                }
                 // ELSE IF the pixel matches the template center pixel color
               } else if (isCloseEnough(realPixelRed, realPixelCenterGreen, realPixelCenterBlue, templatePixelCenterRed, templatePixelCenterGreen, templatePixelCenterBlue)) {
                 paintedCount++; // ...the pixel is painted correctly
               } else {
                 wrongCount++; // ...the pixel is NOT painted correctly
-                this.firstWrongPixel ??= {
-                  x: Number(template.pixelCoords?.[0] || 0) + Math.floor(x / this.drawMult),
-                  y: Number(template.pixelCoords?.[1] || 0) + Math.floor(y / this.drawMult)
-                };
+                if (wrongCount === 1) {
+                  this.firstWrongPixel = {
+                    x: Number(template.pixelCoords?.[0] || 0) + Math.floor(x / this.drawMult),
+                    y: Number(template.pixelCoords?.[1] || 0) + Math.floor(y / this.drawMult)
+                  };
+                }
               }
             }
           }
@@ -540,12 +545,15 @@ export default class TemplateManager {
 
       let wrongPixelInfo = '';
       if (totalRequired - aggPainted > 0 && this.firstWrongPixel) {
-        wrongPixelInfo = `First incorrect at (${this.firstWrongPixel.x}, ${this.firstWrongPixel.y})`;
+        wrongPixelInfo = `\nFirst wrong at (${this.firstWrongPixel.x}, ${this.firstWrongPixel.y})`;
+      }
+      if (totalRequired - aggPainted > 0 && this.firstUnpaintedPixel) {
+        wrongPixelInfo += `\nFirst unpainted at (${this.firstUnpaintedPixel.x}, ${this.firstUnpaintedPixel.y})`;
       }
 
       this.overlay.handleDisplayStatus(
         //`Displaying ${templateCount} template${templateCount == 1 ? '' : 's'}.\nPainted ${paintedStr} / ${requiredStr} (${Math.round(aggPainted / totalRequired * 1000) / 10}%) • Wrong ${wrongStr}\n${wrongPixelInfo}`
-        `Painted ${paintedStr} / ${requiredStr} (${Math.round(aggPainted / totalRequired * 1000) / 10}%) • Wrong ${wrongStr} • Unpainted ${unpaintedStr}\n${wrongPixelInfo}`
+        `Painted ${paintedStr} / ${requiredStr} (${Math.round(aggPainted / totalRequired * 1000) / 10}%) • Wrong ${wrongStr} • Unpainted ${unpaintedStr}${wrongPixelInfo}`
       );
     } else {
       this.overlay.handleDisplayStatus(`Displaying ${templateCount} templates.`);
