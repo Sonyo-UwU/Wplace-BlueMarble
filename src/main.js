@@ -808,6 +808,7 @@ function buildOverlayMain() {
     const entries = Object.entries(t.colorPalette)
       .sort((a,b) => b[1].count - a[1].count); // sort by frequency desc
 
+    let scrollTo = null;
     for (const [rgb, meta] of entries) {
       let row = document.createElement('div');
       row.style.display = 'flex';
@@ -855,6 +856,9 @@ function buildOverlayMain() {
         persistPalette();
       });
 
+      if (toggle.checked && scrollTo === null)
+        scrollTo = row;
+
       const paint = document.createElement('button');
       paint.classList.add('bm-help');
       paint.classList.add('bm-paint-button');
@@ -894,7 +898,9 @@ function buildOverlayMain() {
       row.appendChild(label);
       listContainer.appendChild(row);
     }
-    };
+    scrollTo?.scrollIntoView({ 'behavior': 'instant', 'block': 'center' });
+  };
+
 
   // Listen for template creation/import completion to (re)build palette list
   window.addEventListener('message', (event) => {
