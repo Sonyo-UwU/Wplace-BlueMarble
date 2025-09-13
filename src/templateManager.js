@@ -544,10 +544,10 @@ export default class TemplateManager {
       const unpaintedStr = new Intl.NumberFormat().format(aggUnpainted);
 
       let wrongPixelInfo = '';
-      if (totalRequired - aggPainted > 0 && this.firstWrongPixel) {
+      if (aggWrong > 0 && this.firstWrongPixel) {
         wrongPixelInfo = `\nFirst wrong at (${this.firstWrongPixel.x}, ${this.firstWrongPixel.y})`;
       }
-      if (totalRequired - aggPainted > 0 && this.firstUnpaintedPixel) {
+      if (aggUnpainted > 0 && this.firstUnpaintedPixel) {
         wrongPixelInfo += `\nFirst unpainted at (${this.firstUnpaintedPixel.x}, ${this.firstUnpaintedPixel.y})`;
       }
 
