@@ -62,8 +62,6 @@ export default class TemplateManager {
     this.templatesJSON = null; // All templates currently loaded (JSON)
     this.templatesShouldBeDrawn = true; // Should ALL templates be drawn to the canvas?
     this.tileProgress = new Map(); // Tracks per-tile progress stats {painted, required, wrong, unpainted}
-    this.firstWrongPixel = null;
-    this.firstUnpaintedPixel = null;
   }
 
   /** Retrieves the pixel art canvas.
@@ -287,6 +285,9 @@ export default class TemplateManager {
     let wrongCount = 0;
     let requiredCount = 0;
     let unpaintedCount = 0;
+
+    let firstWrongPixel;
+    let firstUnpaintedPixel;
     
     const tileBitmap = await createImageBitmap(tileBlob);
 
@@ -409,23 +410,19 @@ export default class TemplateManager {
               if (realPixelCenterAlpha < 64) {
                 // Unpainted -> neither painted nor wrong
                 unpaintedCount++;
-                if (unpaintedCount === 1) {
-                  this.firstUnpaintedPixel = {
-                    x: Number(template.pixelCoords?.[0] || 0) + Math.floor(x / this.drawMult),
-                    y: Number(template.pixelCoords?.[1] || 0) + Math.floor(y / this.drawMult)
-                  };
-                }
+                firstUnpaintedPixel ??= {
+                  x: Number(template.pixelCoords?.[0] || 0) + Math.floor(x / this.drawMult),
+                  y: Number(template.pixelCoords?.[1] || 0) + Math.floor(y / this.drawMult)
+                };
                 // ELSE IF the pixel matches the template center pixel color
               } else if (isCloseEnough(realPixelRed, realPixelCenterGreen, realPixelCenterBlue, templatePixelCenterRed, templatePixelCenterGreen, templatePixelCenterBlue)) {
                 paintedCount++; // ...the pixel is painted correctly
               } else {
                 wrongCount++; // ...the pixel is NOT painted correctly
-                if (wrongCount === 1) {
-                  this.firstWrongPixel = {
-                    x: Number(template.pixelCoords?.[0] || 0) + Math.floor(x / this.drawMult),
-                    y: Number(template.pixelCoords?.[1] || 0) + Math.floor(y / this.drawMult)
-                  };
-                }
+                firstWrongPixel ??= {
+                  x: Number(template.pixelCoords?.[0] || 0) + Math.floor(x / this.drawMult),
+                  y: Number(template.pixelCoords?.[1] || 0) + Math.floor(y / this.drawMult)
+                };
               }
             }
           }
@@ -544,11 +541,11 @@ export default class TemplateManager {
       const unpaintedStr = new Intl.NumberFormat().format(aggUnpainted);
 
       let wrongPixelInfo = '';
-      if (aggWrong > 0 && this.firstWrongPixel) {
-        wrongPixelInfo = `\nFirst wrong at (${this.firstWrongPixel.x}, ${this.firstWrongPixel.y})`;
+      if (aggWrong > 0 && firstWrongPixel) {
+        wrongPixelInfo = `\nFirst wrong at (${firstWrongPixel.x}, ${firstWrongPixel.y})`;
       }
-      if (aggUnpainted > 0 && this.firstUnpaintedPixel) {
-        wrongPixelInfo += `\nFirst unpainted at (${this.firstUnpaintedPixel.x}, ${this.firstUnpaintedPixel.y})`;
+      if (aggUnpainted > 0 && firstUnpaintedPixel) {
+        wrongPixelInfo += `\nFirst unpainted at (${firstUnpaintedPixel.x}, ${firstUnpaintedPixel.y})`;
       }
 
       this.overlay.handleDisplayStatus(
