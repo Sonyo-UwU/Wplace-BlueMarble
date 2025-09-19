@@ -62,6 +62,8 @@ export default class TemplateManager {
     this.templatesJSON = null; // All templates currently loaded (JSON)
     this.templatesShouldBeDrawn = true; // Should ALL templates be drawn to the canvas?
     this.tileProgress = new Map(); // Tracks per-tile progress stats {painted, required, wrong, unpainted}
+    this.firstWrongPixel = null;
+    this.firstUnpaintedPixel = null;
   }
 
   /** Retrieves the pixel art canvas.
@@ -78,7 +80,7 @@ export default class TemplateManager {
     // Else, the stored canvas is "stale", get the canvas again
 
     // Attempt to find and destroy the "stale" canvas
-    document.getElementById(this.canvasTemplateID)?.remove(); 
+    document.getElementById(this.canvasTemplateID)?.remove();
 
     const canvasMain = document.querySelector(this.canvasMainID);
 
@@ -226,9 +228,9 @@ export default class TemplateManager {
     const drawSize = this.tileSize * this.drawMult; // Calculate draw multiplier for scaling
 
     // Format tile coordinates with proper padding for consistent lookup
-    tileCoords = tileCoords[0].toString().padStart(4, '0') + ',' + tileCoords[1].toString().padStart(4, '0');
+    const tileCoordsString = tileCoords[0].toString().padStart(4, '0') + ',' + tileCoords[1].toString().padStart(4, '0');
 
-    console.log(`Searching for templates in tile: "${tileCoords}"`);
+    console.log(`Searching for templates in tile: "${tileCoordsString}"`);
 
     const templateArray = this.templatesArray; // Stores a copy for sorting
     console.log(templateArray);
@@ -243,18 +245,18 @@ export default class TemplateManager {
       if (!t?.chunked) { return false; }
       // Fast path via recorded tile prefixes if available
       if (t.tilePrefixes && t.tilePrefixes.size > 0) {
-        return t.tilePrefixes.has(tileCoords);
+        return t.tilePrefixes.has(tileCoordsString);
       }
       // Fallback: scan chunked keys
-      return Object.keys(t.chunked).some(k => k.startsWith(tileCoords));
+      return Object.keys(t.chunked).some(k => k.startsWith(tileCoordsString));
     });
     if (!anyTouches) { return tileBlob; }
 
-    // Retrieves the relavent template tile blobs
+    // Retrieves the relevant template tile blobs
     const templatesToDraw = templateArray
       .map(template => {
         const matchingTiles = Object.keys(template.chunked).filter(tile =>
-          tile.startsWith(tileCoords)
+          tile.startsWith(tileCoordsString)
         );
 
         if (matchingTiles.length === 0) {return null;} // Return null when nothing is found
@@ -273,7 +275,7 @@ export default class TemplateManager {
 
         return matchingTileBlobs?.[0];
       })
-    .filter(Boolean);
+      .filter(Boolean);
 
     console.log(templatesToDraw);
 
@@ -286,9 +288,6 @@ export default class TemplateManager {
     let requiredCount = 0;
     let unpaintedCount = 0;
 
-    let firstWrongPixel;
-    let firstUnpaintedPixel;
-    
     const tileBitmap = await createImageBitmap(tileBlob);
 
     const canvas = new OffscreenCanvas(drawSize, drawSize);
@@ -337,13 +336,13 @@ export default class TemplateManager {
 
           // Loops over all pixels in the template
           // Assigns each pixel a color (if center pixel)
-          for (let y = 0; y < tempHeight; y++) {
-            for (let x = 0; x < tempWidth; x++) {
+          for (let y = 1; y < tempHeight; y += this.drawMult) {
+            for (let x = 1; x < tempWidth; x += this.drawMult) {
               // Purpose: Count which pixels are painted correctly???
 
               // Only evaluate the center pixel of each shread block
               // Skip if not the center pixel of the shread block
-              if ((x % this.drawMult) !== 1 || (y % this.drawMult) !== 1) { continue; }
+              //if ((x % this.drawMult) !== 1 || (y % this.drawMult) !== 1) { continue; }
 
               const gx = x + offsetX;
               const gy = y + offsetY;
@@ -357,7 +356,7 @@ export default class TemplateManager {
               const templatePixelCenterBlue = tData[templatePixelCenter + 2]; // Shread block's center pixel's BLUE value
               const templatePixelCenterAlpha = tData[templatePixelCenter + 3]; // Shread block's center pixel's ALPHA value
 
-              // Possibly needs to be removed 
+              // Possibly needs to be removed
               // Handle template transparent pixel (alpha < 64): wrong if board has any site palette color here
               // If the alpha of the center pixel is less than 64...
               if (templatePixelCenterAlpha < 64) {
@@ -406,23 +405,33 @@ export default class TemplateManager {
               const realPixelCenterBlue = tilePixels[realPixelCenter + 2];
               const realPixelCenterAlpha = tilePixels[realPixelCenter + 3];
 
+              const px = Number(template.pixelCoords?.[0] || 0) + Math.floor(x / this.drawMult);
+              const py = Number(template.pixelCoords?.[1] || 0) + Math.floor(y / this.drawMult);
+              const index = (tileCoords[0] * 10000 + tileCoords[1]) * 1000000 + px * 1000 + py;
+
               // IF the alpha of the pixel is less than 64...
               if (realPixelCenterAlpha < 64) {
                 // Unpainted -> neither painted nor wrong
                 unpaintedCount++;
-                firstUnpaintedPixel ??= {
-                  x: Number(template.pixelCoords?.[0] || 0) + Math.floor(x / this.drawMult),
-                  y: Number(template.pixelCoords?.[1] || 0) + Math.floor(y / this.drawMult)
-                };
+                if (index < (this.firstUnpaintedPixel?.index ?? Number.MAX_SAFE_INTEGER)) {
+                  this.firstUnpaintedPixel = {
+                    index: index,
+                    x: px,
+                    y: py
+                  };
+                }
                 // ELSE IF the pixel matches the template center pixel color
               } else if (isCloseEnough(realPixelRed, realPixelCenterGreen, realPixelCenterBlue, templatePixelCenterRed, templatePixelCenterGreen, templatePixelCenterBlue)) {
                 paintedCount++; // ...the pixel is painted correctly
               } else {
                 wrongCount++; // ...the pixel is NOT painted correctly
-                firstWrongPixel ??= {
-                  x: Number(template.pixelCoords?.[0] || 0) + Math.floor(x / this.drawMult),
-                  y: Number(template.pixelCoords?.[1] || 0) + Math.floor(y / this.drawMult)
-                };
+                if (index < (this.firstWrongPixel?.index ?? Number.MAX_SAFE_INTEGER)) {
+                  this.firstWrongPixel = {
+                    index: index,
+                    x: px,
+                    y: py
+                  };
+                }
               }
             }
           }
@@ -459,11 +468,11 @@ export default class TemplateManager {
           const data = img.data;
 
           // For every pixel...
-          for (let y = 0; y < tempH; y++) {
-            for (let x = 0; x < tempW; x++) {
+          for (let y = 1; y < tempH; y += this.drawMult) {
+            for (let x = 1; x < tempW; x += this.drawMult) {
 
               // If this pixel is NOT the center pixel, then skip the pixel
-              if ((x % this.drawMult) !== 1 || (y % this.drawMult) !== 1) { continue; }
+              //if ((x % this.drawMult) !== 1 || (y % this.drawMult) !== 1) { continue; }
 
               const idx = (y * tempW + x) * 4;
               const r = data[idx];
@@ -504,10 +513,9 @@ export default class TemplateManager {
       }
     }
 
-    debugger;
     // Save per-tile stats and compute global aggregates across all processed tiles
     if (templateCount > 0) {
-      const tileKey = tileCoords; // already padded string "xxxx,yyyy"
+      const tileKey = tileCoordsString; // already padded string "xxxx,yyyy"
       this.tileProgress.set(tileKey, {
         painted: paintedCount,
         required: requiredCount,
@@ -541,11 +549,11 @@ export default class TemplateManager {
       const unpaintedStr = new Intl.NumberFormat().format(aggUnpainted);
 
       let wrongPixelInfo = '';
-      if (aggWrong > 0 && firstWrongPixel) {
-        wrongPixelInfo = `\nFirst wrong at (${firstWrongPixel.x}, ${firstWrongPixel.y})`;
+      if (aggWrong > 0 && this.firstWrongPixel) {
+        wrongPixelInfo = `\nFirst wrong at (${this.firstWrongPixel.x}, ${this.firstWrongPixel.y})`;
       }
-      if (aggUnpainted > 0 && firstUnpaintedPixel) {
-        wrongPixelInfo += `\nFirst unpainted at (${firstUnpaintedPixel.x}, ${firstUnpaintedPixel.y})`;
+      if (aggUnpainted > 0 && this.firstUnpaintedPixel) {
+        wrongPixelInfo += `\nFirst unpainted at (${this.firstUnpaintedPixel.x}, ${this.firstUnpaintedPixel.y})`;
       }
 
       this.overlay.handleDisplayStatus(
