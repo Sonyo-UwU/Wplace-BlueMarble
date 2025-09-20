@@ -172,7 +172,7 @@ export function getKeyForColor(r, g, b, allowedColorsSet) {
   for (const {rgb} of colorpalette) {
     if (isCloseEnough(...rgb, r, g, b)) {
       key = `${rgb[0]},${rgb[1]},${rgb[2]}`;
-      if (allowedColorsSet?.has(key))
+      if (!allowedColorsSet || allowedColorsSet.has(key))
         break;
 
       key = 'other';

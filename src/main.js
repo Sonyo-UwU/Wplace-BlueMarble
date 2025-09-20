@@ -195,7 +195,8 @@ if (Object.keys(userSettings).length == 0) {
     'uuid': uuid
   }));
 }
-setInterval(() => apiManager.sendHeartbeat(version), 1000 * 60 * 30); // Sends a heartbeat every 30 minutes
+// Disabled telemetry
+//setInterval(() => apiManager.sendHeartbeat(version), 1000 * 60 * 30); // Sends a heartbeat every 30 minutes
 
 console.log(`Telemetry is ${!(userSettings?.telemetry == undefined)}`);
 if ((userSettings?.telemetry == undefined) || (userSettings?.telemetry > 1)) { // Increment 1 to retrigger telemetry notice
@@ -292,6 +293,7 @@ function buildOverlayMain() {
       const key = t?.storageKey;
       if (t && key && templateManager.templatesJSON?.templates?.[key]) {
         templateManager.templatesJSON.templates[key].palette = t.colorPalette;
+        templateManager.templatesJSON.templates[key].filterListOptions = t.filterListOptions;
         GM.setValue('bmTemplates', JSON.stringify(templateManager.templatesJSON));
       }
     } catch (_) {}
@@ -719,7 +721,22 @@ function buildOverlayMain() {
             }).buildElement()
           .buildElement()
         .buildElement()
-        .addDiv({'id': 'bm-colorfilter-list', 'style': 'max-height: 120px; overflow: auto;'}).buildElement()
+        .addDiv({'id': 'bm-colorfilter-list-options'})
+          .addCheckbox({'id': 'bm-hide-finished', 'textContent': 'Hide finished colors', 'checked': userSettings.hideFinished}, (instance, input) => {
+            input.addEventListener('click', e => {
+              userSettings.hideFinished = e.target.checked;
+              GM.setValue('bmUserSettings', JSON.stringify(userSettings));
+            });
+          }).buildElement()
+          .addBr().buildElement()
+          .addCheckbox({'id': 'bm-remaining-count', 'textContent': 'Remaining pixel count', 'checked': userSettings.remainingCount}, (instance, input) => {
+            input.addEventListener('click', e => {
+              userSettings.remainingCount = e.target.checked;
+              GM.setValue('bmUserSettings', JSON.stringify(userSettings));
+            });
+          }).buildElement()
+        .buildElement()
+        .addDiv({'id': 'bm-colorfilter-list'}).buildElement()
       .buildElement()
       .addInputFile({'id': 'bm-input-file-template', 'textContent': 'Upload Template', 'accept': 'image/png, image/jpeg, image/webp, image/bmp, image/gif'}).buildElement()
       .addDiv({'id': 'bm-contain-buttons-template'})
@@ -823,17 +840,16 @@ function buildOverlayMain() {
       swatch.style.border = '1px solid rgba(255,255,255,0.5)';
       swatch.style.cursor = 'pointer';
       
-      let label = document.createElement('span');
-      label.style.fontSize = '12px';
-      let labelText = `${meta.count.toLocaleString()}`;
+      const label = document.createElement('span');
+      let labelText = '';
 
       // Special handling for "other" and "transparent"
       if (rgb === 'other') {
         swatch.style.background = '#888'; // Neutral color for "Other"
-        labelText = `Other • ${labelText}`;
+        labelText = 'Other • ';
       } else if (rgb === '#deface') {
         swatch.style.background = '#deface';
-        labelText = `Transparent • ${labelText}`;
+        labelText = 'Transparent • ';
       } else {
         const [r, g, b] = rgb.split(',').map(Number);
         swatch.style.background = `rgb(${r},${g},${b})`;
@@ -841,11 +857,21 @@ function buildOverlayMain() {
           const tMeta = templateManager.templatesArray?.[0]?.rgbToMeta?.get(rgb);
           if (tMeta && typeof tMeta.id === 'number') {
             const displayName = tMeta?.name || `rgb(${r},${g},${b})`;
-            labelText = `${displayName} • ${labelText}`;
+            labelText = `${displayName} • `;
           }
         } catch (ignored) {}
       }
       label.textContent = labelText;
+
+      const totalRequired = document.createElement('span');
+      totalRequired.textContent = meta.count.toLocaleString();
+      totalRequired.classList.add('bm-required-count');
+
+      const remainingCount = document.createElement('span');
+      remainingCount.id = `no-mangle-bm-remaining-count-${rgb}`;
+      remainingCount.classList.add('bm-remaining-count');
+      remainingCount.style.display = 'none';
+      remainingCount.textContent = '...';
 
       const toggle = document.createElement('input');
       toggle.type = 'checkbox';
@@ -896,6 +922,8 @@ function buildOverlayMain() {
       row.appendChild(swatch);
       row.appendChild(paint);
       row.appendChild(label);
+      row.appendChild(totalRequired);
+      row.appendChild(remainingCount);
       listContainer.appendChild(row);
     }
     scrollTo?.scrollIntoView({ 'behavior': 'instant', 'block': 'center' });

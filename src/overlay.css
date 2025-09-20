@@ -124,6 +124,43 @@ div#bm-overlay, div#bm-overlay-telemetry {
   vertical-align: middle;
 }
 
+/* Color filter list */
+#bm-colorfilter-list {
+    max-height: 120px;
+    overflow: auto;
+
+    span {
+        font-size: 12px;
+    }
+}
+
+/* Color filter list options */
+#bm-colorfilter-list-options {
+    background-color: rgba(0, 0, 0, 0.2);
+    font-size: 90%;
+
+    input[type="checkbox"] {
+        vertical-align: initial !important;
+        margin-left: .5ch !important;
+        filter: hue-rotate(60deg) !important;
+    }
+}
+
+/* Hide finished option */
+#bm-contain-automation:has(#bm-hide-finished:checked) .bm-color-finished {
+    display: none !important;
+}
+
+/* Remaining count option */
+#bm-contain-automation:has(#bm-remaining-count:checked) {
+    .bm-required-count {
+        display: none !important;
+    }
+    .bm-remaining-count {
+        display: initial !important;
+    }
+}
+
 /* Checkboxes in the automation container */
 #bm-contain-automation input[type="checkbox"] {
   vertical-align: middle;

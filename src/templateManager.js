@@ -1,5 +1,5 @@
 import Template from "./Template";
-import { base64ToUint8, numberToEncoded, isCloseEnough, getKeyForColor } from "./utils";
+import {base64ToUint8, getKeyForColor, isCloseEnough, numberToEncoded} from "./utils";
 
 /** Manages the template system.
  * This class handles all external requests for template modification, creation, and analysis.
@@ -61,7 +61,7 @@ export default class TemplateManager {
     this.templatesArray = []; // All Template instnaces currently loaded (Template)
     this.templatesJSON = null; // All templates currently loaded (JSON)
     this.templatesShouldBeDrawn = true; // Should ALL templates be drawn to the canvas?
-    this.tileProgress = new Map(); // Tracks per-tile progress stats {painted, required, wrong, unpainted}
+    this.tileProgress = new Map(); // Tracks per-tile progress stats for each color {painted, required, wrong, unpainted}
     this.firstWrongPixel = null;
     this.firstUnpaintedPixel = null;
   }
@@ -283,10 +283,12 @@ export default class TemplateManager {
     console.log(`templateCount = ${templateCount}`);
 
     // We'll compute per-tile painted/wrong/required counts when templates exist for this tile
-    let paintedCount = 0;
-    let wrongCount = 0;
-    let requiredCount = 0;
-    let unpaintedCount = 0;
+    //let paintedCount = 0;
+    //let wrongCount = 0;
+    //let requiredCount = 0;
+    //let unpaintedCount = 0;
+
+    this.tileProgress.set(tileCoordsString, {});
 
     const tileBitmap = await createImageBitmap(tileBlob);
 
@@ -355,6 +357,7 @@ export default class TemplateManager {
               const templatePixelCenterGreen = tData[templatePixelCenter + 1]; // Shread block's center pixel's GREEN value
               const templatePixelCenterBlue = tData[templatePixelCenter + 2]; // Shread block's center pixel's BLUE value
               const templatePixelCenterAlpha = tData[templatePixelCenter + 3]; // Shread block's center pixel's ALPHA value
+              const templateColorKey = getKeyForColor(templatePixelCenterRed, templatePixelCenterGreen, templatePixelCenterBlue);
 
               // Possibly needs to be removed
               // Handle template transparent pixel (alpha < 64): wrong if board has any site palette color here
@@ -396,7 +399,9 @@ export default class TemplateManager {
               //   }
               // } catch (ignored) {}
 
-              requiredCount++;
+              if (!this.tileProgress.get(tileCoordsString)[templateColorKey])
+                this.tileProgress.get(tileCoordsString)[templateColorKey] = { required: 0, unpainted: 0, wrong: 0, painted: 0 };
+              this.tileProgress.get(tileCoordsString)[templateColorKey].required++;
 
               // Strict center-pixel matching. Treat transparent tile pixels as unpainted (not wrong)
               const realPixelCenter = (gy * drawSize + gx) * 4;
@@ -412,7 +417,7 @@ export default class TemplateManager {
               // IF the alpha of the pixel is less than 64...
               if (realPixelCenterAlpha < 64) {
                 // Unpainted -> neither painted nor wrong
-                unpaintedCount++;
+                this.tileProgress.get(tileCoordsString)[templateColorKey].unpainted++;
                 if (index < (this.firstUnpaintedPixel?.index ?? Number.MAX_SAFE_INTEGER)) {
                   this.firstUnpaintedPixel = {
                     index: index,
@@ -422,9 +427,9 @@ export default class TemplateManager {
                 }
                 // ELSE IF the pixel matches the template center pixel color
               } else if (isCloseEnough(realPixelRed, realPixelCenterGreen, realPixelCenterBlue, templatePixelCenterRed, templatePixelCenterGreen, templatePixelCenterBlue)) {
-                paintedCount++; // ...the pixel is painted correctly
+                this.tileProgress.get(tileCoordsString)[templateColorKey].painted++; // ...the pixel is painted correctly
               } else {
-                wrongCount++; // ...the pixel is NOT painted correctly
+                this.tileProgress.get(tileCoordsString)[templateColorKey].wrong++; // ...the pixel is NOT painted correctly
                 if (index < (this.firstWrongPixel?.index ?? Number.MAX_SAFE_INTEGER)) {
                   this.firstWrongPixel = {
                     index: index,
@@ -515,24 +520,40 @@ export default class TemplateManager {
 
     // Save per-tile stats and compute global aggregates across all processed tiles
     if (templateCount > 0) {
-      const tileKey = tileCoordsString; // already padded string "xxxx,yyyy"
-      this.tileProgress.set(tileKey, {
-        painted: paintedCount,
-        required: requiredCount,
-        wrong: wrongCount,
-        unpainted: unpaintedCount
-      });
+      //this.tileProgress.set(tileCoordsString, {
+      //  painted: paintedCount,
+      //  required: requiredCount,
+      //  wrong: wrongCount,
+      //  unpainted: unpaintedCount
+      //});
 
       // Aggregate painted/wrong across tiles we've processed
       let aggPainted = 0;
       let aggRequiredTiles = 0;
       let aggWrong = 0;
       let aggUnpainted = 0;
+      let perColorRemaining = {};
       for (const stats of this.tileProgress.values()) {
-        aggPainted += stats.painted || 0;
-        aggRequiredTiles += stats.required || 0;
-        aggWrong += stats.wrong || 0;
-        aggUnpainted += stats.unpainted || 0;
+        for (const [key, s] of Object.entries(stats)) {
+          aggPainted += s.painted;
+          aggRequiredTiles += s.required;
+          aggWrong += s.wrong;
+          aggUnpainted += s.unpainted;
+
+          if (!perColorRemaining[key])
+            perColorRemaining[key] = 0;
+          perColorRemaining[key] += s.required - s.painted;
+        }
+      }
+
+      // Visually update remaining counts
+      for (const [key, s] of Object.entries(perColorRemaining)) {
+        const remainingCount = document.getElementById(`no-mangle-bm-remaining-count-${key}`);
+        remainingCount.textContent = s.toLocaleString();
+        if (s === 0)
+          remainingCount.parentElement.classList.add('bm-color-finished');
+        else
+          remainingCount.parentElement.classList.remove('bm-color-finished');
       }
 
       // Determine total required across all templates
