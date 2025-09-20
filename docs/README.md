@@ -78,6 +78,8 @@
     <li>Buttons to select color on the filter list</li>
     <li>Disable and enable all colors keyboard shortcuts</li>
     <li>Display pixels painted percentage in the output status</li>
+    <li>Display unpainted pixel count in the output status</li>
+    <li>Display first unpainted and first wrong pixel in the output status</li>
     <li>Pixels close to but not exactly a palette color are considered being of that color</li>
   </ul>
   Minor features:
@@ -90,6 +92,7 @@
     <li>Save coords when pasting</li>
     <li>Correctly load saved coords</li>
     <li>Fix the output status showing 1 required pixel for the template</li>
+    <li>Scroll to the first unpainted color in the list on load</li>
   </ul>
   <h3>How to install</h3>
   Go to <a href="https://github.com/Sonyo-UwU/Wplace-BlueMarble/releases/latest">the latest release</a> and click on <code>BlueMarble.user.js</code> under assets.<br>
