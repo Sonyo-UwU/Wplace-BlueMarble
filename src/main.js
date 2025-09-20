@@ -722,19 +722,25 @@ function buildOverlayMain() {
           .buildElement()
         .buildElement()
         .addDiv({'id': 'bm-colorfilter-list-options'})
-          .addCheckbox({'id': 'bm-hide-finished', 'textContent': 'Hide finished colors', 'checked': userSettings.hideFinished}, (instance, input) => {
-            input.addEventListener('click', e => {
-              userSettings.hideFinished = e.target.checked;
-              GM.setValue('bmUserSettings', JSON.stringify(userSettings));
-            });
-          }).buildElement()
+          .addTooltip()
+            .addTooltipContent({'textContent': 'Hide rows when the corresponding color is completed'}).buildElement()
+            .addCheckbox({'id': 'bm-hide-completed', 'textContent': 'Hide completed colors', 'checked': userSettings.hideCompleted}, (instance, input) => {
+              input.addEventListener('click', e => {
+                userSettings.hideCompleted = e.target.checked;
+                GM.setValue('bmUserSettings', JSON.stringify(userSettings));
+              });
+            }).buildElement()
+          .buildElement()
           .addBr().buildElement()
-          .addCheckbox({'id': 'bm-remaining-count', 'textContent': 'Remaining pixel count', 'checked': userSettings.remainingCount}, (instance, input) => {
-            input.addEventListener('click', e => {
-              userSettings.remainingCount = e.target.checked;
-              GM.setValue('bmUserSettings', JSON.stringify(userSettings));
-            });
-          }).buildElement()
+          .addTooltip()
+            .addTooltipContent({'textContent': 'Display the remaining pixel count instead of the required pixel count'}).buildElement()
+            .addCheckbox({'id': 'bm-remaining-count', 'textContent': 'Remaining pixel count', 'checked': userSettings.remainingCount}, (instance, input) => {
+              input.addEventListener('click', e => {
+                userSettings.remainingCount = e.target.checked;
+                GM.setValue('bmUserSettings', JSON.stringify(userSettings));
+              });
+            }).buildElement()
+          .buildElement()
         .buildElement()
         .addDiv({'id': 'bm-colorfilter-list'}).buildElement()
       .buildElement()

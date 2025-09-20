@@ -146,8 +146,8 @@ div#bm-overlay, div#bm-overlay-telemetry {
     }
 }
 
-/* Hide finished option */
-#bm-contain-automation:has(#bm-hide-finished:checked) .bm-color-finished {
+/* Hide completed option */
+#bm-contain-automation:has(#bm-hide-completed:checked) .bm-color-completed {
     display: none !important;
 }
 

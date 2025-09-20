@@ -551,9 +551,9 @@ export default class TemplateManager {
         const remainingCount = document.getElementById(`no-mangle-bm-remaining-count-${key}`);
         remainingCount.textContent = s.toLocaleString();
         if (s === 0)
-          remainingCount.parentElement.classList.add('bm-color-finished');
+          remainingCount.parentElement.classList.add('bm-color-completed');
         else
-          remainingCount.parentElement.classList.remove('bm-color-finished');
+          remainingCount.parentElement.classList.remove('bm-color-completed');
       }
 
       // Determine total required across all templates
