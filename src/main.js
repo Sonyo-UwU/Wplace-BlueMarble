@@ -932,7 +932,8 @@ function buildOverlayMain() {
       row.appendChild(remainingCount);
       listContainer.appendChild(row);
     }
-    scrollTo?.scrollIntoView({ 'behavior': 'instant', 'block': 'center' });
+    if (!userSettings.hideCompleted)
+      scrollTo?.scrollIntoView({ 'behavior': 'instant', 'block': 'center' });
   };
 
 
