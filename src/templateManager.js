@@ -548,7 +548,10 @@ export default class TemplateManager {
 
       // Visually update remaining counts
       for (const [key, s] of Object.entries(perColorRemaining)) {
-        const remainingCount = document.getElementById(`no-mangle-bm-remaining-count-${key}`);
+        const remainingCount = document.getElementById(`bm-remaining-count-${key}`);
+        if (remainingCount === null)
+          continue;
+
         remainingCount.textContent = s.toLocaleString();
         if (s === 0)
           remainingCount.parentElement.classList.add('bm-color-completed');

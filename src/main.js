@@ -874,7 +874,7 @@ function buildOverlayMain() {
       totalRequired.classList.add('bm-required-count');
 
       const remainingCount = document.createElement('span');
-      remainingCount.id = `no-mangle-bm-remaining-count-${rgb}`;
+      remainingCount.id = `bm-remaining-count-${rgb}`;
       remainingCount.classList.add('bm-remaining-count');
       remainingCount.style.display = 'none';
       remainingCount.textContent = '...';
