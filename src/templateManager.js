@@ -133,6 +133,11 @@ export default class TemplateManager {
     this.templatesJSON = this.createJSON();
     console.log(`Creating JSON...`);
 
+    // Reset progress
+    this.tileProgress = new Map();
+    this.firstWrongPixel = null;
+    this.firstUnpaintedPixel = null;
+
     this.overlay.handleDisplayStatus(`Creating template at ${coords.join(', ')}...`);
 
     // Creates a new template instance
