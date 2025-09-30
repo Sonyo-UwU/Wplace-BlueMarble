@@ -433,6 +433,10 @@ export default class TemplateManager {
                 // ELSE IF the pixel matches the template center pixel color
               } else if (isCloseEnough(realPixelRed, realPixelCenterGreen, realPixelCenterBlue, templatePixelCenterRed, templatePixelCenterGreen, templatePixelCenterBlue)) {
                 this.tileProgress.get(tileCoordsString)[templateColorKey].painted++; // ...the pixel is painted correctly
+                if (index === this.firstUnpaintedPixel?.index)
+                  this.firstUnpaintedPixel = null;
+                if (index === this.firstWrongPixel?.index)
+                  this.firstWrongPixel = null;
               } else {
                 this.tileProgress.get(tileCoordsString)[templateColorKey].wrong++; // ...the pixel is NOT painted correctly
                 if (index < (this.firstWrongPixel?.index ?? Number.MAX_SAFE_INTEGER)) {
