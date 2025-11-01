@@ -323,6 +323,8 @@ export default class TemplateManager {
       console.log(`Template:`);
       console.log(template);
 
+      const activeTemplate = this.templatesArray?.[0]; // Get the first template
+
       // Compute stats by sampling template center pixels against tile pixels,
       // honoring color enable/disable from the active template's palette
       if (tilePixels) {
@@ -362,7 +364,7 @@ export default class TemplateManager {
               const templatePixelCenterGreen = tData[templatePixelCenter + 1]; // Shread block's center pixel's GREEN value
               const templatePixelCenterBlue = tData[templatePixelCenter + 2]; // Shread block's center pixel's BLUE value
               const templatePixelCenterAlpha = tData[templatePixelCenter + 3]; // Shread block's center pixel's ALPHA value
-              const templateColorKey = getKeyForColor(templatePixelCenterRed, templatePixelCenterGreen, templatePixelCenterBlue);
+              const templateColorKey = getKeyForColor(templatePixelCenterRed, templatePixelCenterGreen, templatePixelCenterBlue, activeTemplate.allowedColorsSet);
 
               // Possibly needs to be removed
               // Handle template transparent pixel (alpha < 64): wrong if board has any site palette color here
@@ -430,6 +432,9 @@ export default class TemplateManager {
                     y: py
                   };
                 }
+                else if (index === this.firstWrongPixel?.index) {
+                  this.firstWrongPixel = null;
+                }
                 // ELSE IF the pixel matches the template center pixel color
               } else if (isCloseEnough(realPixelRed, realPixelCenterGreen, realPixelCenterBlue, templatePixelCenterRed, templatePixelCenterGreen, templatePixelCenterBlue)) {
                 this.tileProgress.get(tileCoordsString)[templateColorKey].painted++; // ...the pixel is painted correctly
@@ -446,6 +451,9 @@ export default class TemplateManager {
                     y: py
                   };
                 }
+                else if (index === this.firstUnpaintedPixel?.index) {
+                  this.firstUnpaintedPixel = null;
+                }
               }
             }
           }
@@ -456,8 +464,6 @@ export default class TemplateManager {
 
       // Draw the template overlay for visual guidance, honoring color filter
       try {
-
-        const activeTemplate = this.templatesArray?.[0]; // Get the first template
         const palette = activeTemplate?.colorPalette || {}; // Obtain the color palette of the template
         const hasDisabled = Object.values(palette).some(v => v?.enabled === false); // Check if any color is disabled
 
