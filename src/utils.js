@@ -169,7 +169,7 @@ export function isCloseEnough(r1, g1, b1, r2, g2, b2) {
  */
 export function getKeyForColor(r, g, b, allowedColorsSet) {
   let key = `${r},${g},${b}`;
-  if (allowedColorsSet.has(key))
+  if (allowedColorsSet?.has(key))
     return key;
 
   for (const {rgb} of colorpalette) {
